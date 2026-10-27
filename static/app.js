@@ -188,7 +188,7 @@ async function selectRegion(regionName) {
         const expSubElem = document.getElementById('kpi-exp-sub');
         if (expSubElem) {
             expSubElem.innerHTML = `
-                <span class="text-[#0284c7] font-bold">1회 여행 지출</span>
+                <span class="text-[#0284c7] font-bold">전국민 1인당 지출</span>
                 <span class="${expDiff >= 0 ? 'text-blue-600' : 'text-slate-500'} font-bold">
                     ${expDiff >= 0 ? `+${formatWon(expDiff)}` : `-${formatWon(Math.abs(expDiff))}`}
                 </span>
