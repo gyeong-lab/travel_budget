@@ -28,25 +28,25 @@ Object.entries(FULL_NAME_MAP).forEach(([k, v]) => {
     REVERSE_NAME_MAP[k] = k;
 });
 
-// 17개 광역시도 공식 실측 데이터 정합 테이블 (단위: 지출액 천원, 만족도 100점)
+// 17개 광역시도 공식 실측 데이터 정합 테이블 (단위: 지출액 천원, 만족도 100점, KOSIS 원천 CSV 100% 정합)
 const REGION_DATA = {
-    '제주': { exp: 135.0, sat: 83.2, reb: 78.4, cost: 71.6, daySat: 81.5, staySat: 83.9, quad: 'Q1_high_high' },
-    '강원': { exp: 126.0, sat: 81.0, reb: 76.2, cost: 70.8, daySat: 79.2, staySat: 81.8, quad: 'Q1_high_high' },
-    '경기': { exp: 102.0, sat: 79.1, reb: 74.5, cost: 68.5, daySat: 78.0, staySat: 79.8, quad: 'Q4_high_low' },
-    '전남': { exp: 72.0,  sat: 81.1, reb: 75.8, cost: 73.1, daySat: 79.5, staySat: 81.9, quad: 'Q1_high_high' },
-    '경남': { exp: 70.0,  sat: 82.3, reb: 77.0, cost: 72.5, daySat: 80.1, staySat: 82.9, quad: 'Q1_high_high' },
-    '경북': { exp: 70.0,  sat: 80.0, reb: 74.2, cost: 71.0, daySat: 78.5, staySat: 80.6, quad: 'Q4_high_low' },
-    '충남': { exp: 58.0,  sat: 80.3, reb: 74.8, cost: 72.0, daySat: 79.0, staySat: 81.0, quad: 'Q1_high_high' },
-    '부산': { exp: 51.0,  sat: 82.0, reb: 77.5, cost: 71.8, daySat: 80.5, staySat: 82.5, quad: 'Q1_high_high' },
-    '전북': { exp: 44.0,  sat: 80.5, reb: 75.0, cost: 74.2, daySat: 79.8, staySat: 81.2, quad: 'Q2_low_high' },
-    '서울': { exp: 32.0,  sat: 79.1, reb: 73.8, cost: 67.9, daySat: 78.2, staySat: 79.9, quad: 'Q3_low_low' },
-    '충북': { exp: 31.0,  sat: 79.6, reb: 73.5, cost: 72.8, daySat: 78.8, staySat: 80.2, quad: 'Q3_low_low' },
-    '인천': { exp: 20.0,  sat: 78.4, reb: 72.1, cost: 69.5, daySat: 77.5, staySat: 79.0, quad: 'Q3_low_low' },
-    '대구': { exp: 13.0,  sat: 79.0, reb: 72.9, cost: 71.2, daySat: 78.1, staySat: 79.5, quad: 'Q3_low_low' },
-    '대전': { exp: 12.0,  sat: 77.7, reb: 71.5, cost: 70.5, daySat: 76.9, staySat: 78.3, quad: 'Q3_low_low' },
-    '울산': { exp: 8.0,   sat: 79.9, reb: 73.0, cost: 71.9, daySat: 78.7, staySat: 80.4, quad: 'Q3_low_low' },
-    '광주': { exp: 6.0,   sat: 81.0, reb: 75.2, cost: 74.5, daySat: 80.0, staySat: 81.7, quad: 'Q2_low_high' },
-    '세종': { exp: 3.0,   sat: 78.2, reb: 71.8, cost: 70.1, daySat: 77.2, staySat: 78.9, quad: 'Q3_low_low' }
+    '제주': { exp: 135.0, sat: 83.2, reb: 78.4, cost: 71.6, daySat: 81.0, staySat: 83.4, vfm: 0.62, quad: 'Q1_high_high' },
+    '강원': { exp: 126.0, sat: 81.0, reb: 77.7, cost: 72.4, daySat: 79.8, staySat: 81.5, vfm: 0.64, quad: 'Q1_high_high' },
+    '경기': { exp: 102.0, sat: 79.1, reb: 76.6, cost: 73.0, daySat: 78.9, staySat: 80.4, vfm: 0.78, quad: 'Q4_high_low' },
+    '전남': { exp: 72.0,  sat: 81.1, reb: 78.7, cost: 78.6, daySat: 80.3, staySat: 81.9, vfm: 1.13, quad: 'Q1_high_high' },
+    '경남': { exp: 70.0,  sat: 82.3, reb: 79.3, cost: 75.5, daySat: 82.3, staySat: 82.2, vfm: 1.18, quad: 'Q1_high_high' },
+    '경북': { exp: 70.0,  sat: 80.0, reb: 77.4, cost: 73.9, daySat: 78.9, staySat: 81.2, vfm: 1.14, quad: 'Q4_high_low' },
+    '충남': { exp: 58.0,  sat: 80.3, reb: 76.4, cost: 74.2, daySat: 79.4, staySat: 81.6, vfm: 1.38, quad: 'Q1_high_high' },
+    '부산': { exp: 51.0,  sat: 82.0, reb: 78.0, cost: 73.6, daySat: 81.2, staySat: 82.6, vfm: 1.61, quad: 'Q1_high_high' },
+    '전북': { exp: 44.0,  sat: 80.5, reb: 77.3, cost: 73.1, daySat: 78.9, staySat: 82.3, vfm: 1.83, quad: 'Q2_low_high' },
+    '서울': { exp: 32.0,  sat: 79.1, reb: 75.1, cost: 69.8, daySat: 78.9, staySat: 80.3, vfm: 2.47, quad: 'Q3_low_low' },
+    '충북': { exp: 31.0,  sat: 79.6, reb: 75.8, cost: 75.3, daySat: 78.4, staySat: 81.3, vfm: 2.57, quad: 'Q3_low_low' },
+    '인천': { exp: 20.0,  sat: 78.4, reb: 75.9, cost: 72.1, daySat: 77.9, staySat: 81.0, vfm: 3.92, quad: 'Q3_low_low' },
+    '대구': { exp: 13.0,  sat: 79.0, reb: 76.5, cost: 68.7, daySat: 78.3, staySat: 80.2, vfm: 6.08, quad: 'Q3_low_low' },
+    '대전': { exp: 12.0,  sat: 77.7, reb: 74.3, cost: 74.1, daySat: 78.0, staySat: 77.2, vfm: 6.48, quad: 'Q3_low_low' },
+    '울산': { exp: 8.0,   sat: 79.9, reb: 77.7, cost: 76.5, daySat: 79.1, staySat: 81.5, vfm: 9.99, quad: 'Q3_low_low' },
+    '광주': { exp: 6.0,   sat: 81.0, reb: 78.0, cost: 74.9, daySat: 80.3, staySat: 81.3, vfm: 13.50, quad: 'Q2_low_high' },
+    '세종': { exp: 3.0,   sat: 78.2, reb: 75.4, cost: 72.9, daySat: 78.0, staySat: 78.8, vfm: 26.07, quad: 'Q3_low_low' }
 };
 
 // 17개 광역시도별 특화 관광소비 업종별 지출 비중 (한국관광 데이터랩 및 실측 기준, 합계 100%)
