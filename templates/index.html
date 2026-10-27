@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Travel Cost & Satisfaction Insight Builder</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <!-- Chart.js CDN (허용된 차트 라이브러리) -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+
+    <!-- 헤더 -->
+    <header class="app-header">
+        <div class="header-container">
+            <div class="title-group">
+                <h1>🧭 Travel Cost & Satisfaction Insight Builder</h1>
+                <p class="subtitle">여행지 물가·만족도 교육용 통계 분석기 (Pandas 계산 + Gemini 해석 연계)</p>
+            </div>
+            <div class="status-badge" id="server-status-badge">
+                <span class="status-dot"></span> 서버 상태 확인 중...
+            </div>
+        </div>
+    </header>
+
+    <!-- 원칙 안내 배너 -->
+    <div class="banner">
+        <strong>📌 데이터 분석 원칙:</strong>
+        모든 통계 계산(평균, 상관계수, 회귀선, 사분위수)은 <strong>Python Pandas</strong>가 수행하며,
+        <strong>Gemini</strong>는 계산된 결과 숫자만을 바탕으로 편향 없는 학술적 해석만을 담당합니다.
+        (메모리에 1개 데이터셋만 보관되며 서버 재시작 시 초기화됩니다.)
+    </div>
+
+    <!-- 메인 컨테이너 -->
+    <main class="main-container">
+
+        <!-- 워크플로우 진행 바 -->
+        <div class="stepper">
+            <div class="step-item active" id="step-nav-1"><span class="step-num">1</span> CSV 업로드 & 진단</div>
+            <div class="step-item" id="step-nav-2"><span class="step-num">2</span> AI 통계 분석 제안</div>
+            <div class="step-item" id="step-nav-3"><span class="step-num">3</span> 도구 실행 & 통계 차트</div>
+            <div class="step-item" id="step-nav-4"><span class="step-num">4</span> AI 결과 해석 (모드 A/B)</div>
+        </div>
+
+        <!-- 1단계: CSV 파일 업로드 및 데이터 진단 -->
+        <section class="card" id="section-inspect">
+            <div class="card-header">
+                <h2>1단계: 여행 물가·만족도 CSV 업로드 및 자동 진단</h2>
+            </div>
+            <div class="card-body">
+                <div class="upload-area" id="drop-area">
+                    <input type="file" id="file-input" accept=".csv" style="display: none;">
+                    <div class="upload-icon">📁</div>
+                    <p class="upload-title">CSV 파일을 여기로 드래그하거나 클릭하여 선택하세요</p>
+                    <p class="upload-hint">인코딩(UTF-8, CP949 등) 및 헤더 행을 자동 감지합니다 (최대 10MB)</p>
+                    <div class="sample-btn-group">
+                        <button type="button" class="btn btn-secondary" onclick="document.getElementById('file-input').click()">내 컴퓨터에서 파일 선택</button>
+                    </div>
+                </div>
+
+                <div id="upload-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>인코딩 순차 시도, 헤더 자동 감지 및 13개 항목 여행 데이터 진단 중...</p>
+                </div>
+
+                <!-- 진단 결과 패널 -->
+                <div id="diagnosis-panel" class="hidden">
+                    <div class="diag-header-info">
+                        <div><strong id="diag-filename">-</strong> (<span id="diag-filesize">-</span>, 인코딩: <span id="diag-encoding" class="highlight-tag">-</span>, 건너뛴 헤더 줄: <span id="diag-skipped">0</span>줄)</div>
+                        <div>데이터 규모: <strong id="diag-shape">-</strong></div>
+                    </div>
+
+                    <!-- 경고창 -->
+                    <div id="diag-warnings" class="warning-box hidden"></div>
+
+                    <!-- 열 역할 자동 분류 카드 그리드 -->
+                    <h3 class="section-sub-title">🏷️ 감지된 열 역할 후보</h3>
+                    <div class="roles-grid">
+                        <div class="role-card">
+                            <div class="role-name">📍 여행지/지역 후보</div>
+                            <div class="role-cols" id="role-place">-</div>
+                        </div>
+                        <div class="role-card">
+                            <div class="role-name">💰 물가/비용 후보</div>
+                            <div class="role-cols" id="role-cost">-</div>
+                        </div>
+                        <div class="role-card">
+                            <div class="role-name">⭐ 만족도 후보</div>
+                            <div class="role-cols" id="role-sat">-</div>
+                        </div>
+                        <div class="role-card">
+                            <div class="role-name">📅 시점(연도) 후보</div>
+                            <div class="role-cols" id="role-period">-</div>
+                            <div class="ref-period-tag" id="rec-period-tag">권장 기준시점: -</div>
+                        </div>
+                    </div>
+
+                    <!-- 데이터 미리보기 테이블 -->
+                    <h3 class="section-sub-title">👀 데이터 미리보기 (앞쪽 10행)</h3>
+                    <div class="table-wrapper">
+                        <table class="data-table" id="preview-table">
+                            <thead id="preview-thead"></thead>
+                            <tbody id="preview-tbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div class="btn-right-wrapper">
+                        <button class="btn btn-primary" onclick="requestSuggestions()">
+                            2단계: AI 통계 분석 제안 받기 →
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- 2단계: Gemini 도구 제안 -->
+        <section class="card hidden" id="section-suggest">
+            <div class="card-header">
+                <h2>2단계: AI 통계 분석 제안 (도구 카탈로그 12종 기반)</h2>
+                <p class="sub-desc">물가와 만족도를 연계 분석할 수 있는 도구가 우선적으로 제안됩니다.</p>
+            </div>
+            <div class="card-body">
+                <div id="suggest-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>Gemini가 진단 결과를 분석하여 최적의 통계 도구를 추천하고 있습니다...</p>
+                </div>
+
+                <div id="suggestions-list" class="suggestions-grid"></div>
+            </div>
+        </section>
+
+        <!-- 3단계: 도구 실행 및 통계 차트 -->
+        <section class="card hidden" id="section-run">
+            <div class="card-header">
+                <h2>3단계: 도구 실행 & Pandas 통계 계산 결과</h2>
+            </div>
+            <div class="card-body">
+                <!-- 실행 메타 정보 배너 -->
+                <div class="meta-stats-bar" id="run-meta-bar">
+                    <div class="meta-item">실행 도구: <strong id="run-tool-name">-</strong></div>
+                    <div class="meta-item">기준 시점: <strong id="run-ref-period">-</strong></div>
+                    <div class="meta-item">사용한 행 수: <strong id="run-rows-used" class="text-success">-</strong></div>
+                    <div class="meta-item">제외한 행 수: <strong id="run-rows-excluded" class="text-danger">-</strong></div>
+                </div>
+
+                <!-- 제외 사유 안내 -->
+                <div id="run-exclusion-box" class="info-note-box"></div>
+
+                <!-- 차트 렌더 영역 -->
+                <div class="chart-wrapper">
+                    <canvas id="analysisChart"></canvas>
+                </div>
+
+                <!-- 통계 수치 상세 요약 -->
+                <h3 class="section-sub-title">📋 계산 수치 요약</h3>
+                <pre class="json-dump-box" id="run-result-dump"></pre>
+
+                <div class="btn-right-wrapper">
+                    <button class="btn btn-primary" onclick="goToExplainStep()">
+                        4단계: AI 결과 해석 진행하기 →
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- 4단계: AI 해석 (모드 A vs 모드 B) -->
+        <section class="card hidden" id="section-explain">
+            <div class="card-header">
+                <h2>4단계: Gemini AI 통계 결과 해석 (교육용 비교 모드)</h2>
+            </div>
+            <div class="card-body">
+                <div class="mode-selector-box">
+                    <label class="mode-radio">
+                        <input type="radio" name="explain-mode" value="B" checked onchange="changeExplainMode()">
+                        <span class="mode-title"><strong>모드 B (정식 모드)</strong></span>
+                        <span class="mode-desc">Pandas가 계산한 결과만 전달하여 엄격한 7개 규칙을 준수한 정밀 보고서를 작성합니다.</span>
+                    </label>
+                    <label class="mode-radio">
+                        <input type="radio" name="explain-mode" value="A" onchange="changeExplainMode()">
+                        <span class="mode-title"><strong>모드 A (비교용 모드)</strong></span>
+                        <span class="mode-desc">계산 결과를 주지 않고 추정으로 작성하게 하여 AI의 할루시네이션/일반론 한계를 확인합니다.</span>
+                    </label>
+                </div>
+
+                <div class="btn-center-wrapper">
+                    <button class="btn btn-primary" id="btn-run-explain" onclick="requestExplain()">
+                        선택된 모드로 AI 보고서 생성
+                    </button>
+                </div>
+
+                <div id="explain-loading" class="loading-spinner hidden">
+                    <div class="spinner"></div>
+                    <p>AI가 통계 규칙에 맞춰 분석 보고서를 작성 중입니다...</p>
+                </div>
+
+                <!-- 해석 리포트 출력 패널 -->
+                <div id="explain-result-panel" class="report-box hidden">
+                    <div class="report-content" id="explain-text-content"></div>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- 푸터 -->
+    <footer class="app-footer">
+        <div class="footer-container">
+            <p>Travel Cost & Satisfaction Insight Builder | Senior Full Stack Developer Education Architecture</p>
+            <p class="footer-sub">순수 HTML + Vanilla JS + Chart.js + Python Pandas + Gemini API 기반 교육용 웹앱</p>
+        </div>
+    </footer>
+
+    <!-- App JS -->
+    <script src="/static/app.js"></script>
+</body>
+</html>
