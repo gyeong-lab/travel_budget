@@ -116,7 +116,7 @@ async function selectRegion(regionName) {
     currentRegion = shortName;
     const fullName = getFullName(shortName);
 
-    // 칩 활성화
+    // 1. 17개 칩 버튼 활성화 상태 동기화
     SHORT_REGIONS.forEach(reg => {
         const chip = document.getElementById(`chip-reg-${reg}`);
         if (chip) {
@@ -125,13 +125,97 @@ async function selectRegion(regionName) {
         }
     });
 
-    // 글로벌 셀렉트 동기화
+    // 2. 상단 글로벌 셀렉트 동기화
     const globalSelect = document.getElementById('global-region-select');
     if (globalSelect) {
         globalSelect.value = fullName;
     }
 
-    // 서버 API 데이터 갱신
+    // 3. 하단 섹션 및 차트의 지역 라벨들 즉시 동기화
+    const benchName = document.getElementById('benchmark-selected-name');
+    if (benchName) benchName.innerText = fullName;
+
+    const donutTitle = document.getElementById('donut-region-title');
+    if (donutTitle) donutTitle.innerText = fullName;
+
+    const donutSub = document.getElementById('donut-region-sub');
+    if (donutSub) donutSub.innerText = fullName;
+
+    const tripTitle = document.getElementById('triptype-region-title');
+    if (tripTitle) tripTitle.innerText = fullName;
+
+    const tripSub = document.getElementById('triptype-region-sub');
+    if (tripSub) tripSub.innerText = fullName;
+
+    // 4. 로컬 실측 데이터로 0ms 즉시 화면 렌더링 (지연 없이 즉각 반응)
+    const local = REGION_DATA[shortName];
+    if (local) {
+        const titleElem = document.getElementById('kpi-region-title');
+        if (titleElem) titleElem.innerText = fullName;
+        
+        let quadText = "알뜰실속형";
+        if (local.exp >= 53.9 && local.sat >= 80.3) quadText = "고비용·고만족 (프리미엄 체험지)";
+        else if (local.exp < 53.9 && local.sat >= 80.3) quadText = "저비용·고만족 (최고 가성비 추천지)";
+        else if (local.exp < 53.9 && local.sat < 80.3) quadText = "저비용·저만족 (경제적 체류지)";
+        else quadText = "고비용·저만족 (비효율 주의 지역)";
+        const badgeElem = document.getElementById('kpi-quadrant-badge');
+        if (badgeElem) badgeElem.innerText = quadText;
+
+        const expElem = document.getElementById('kpi-exp-val');
+        if (expElem) expElem.innerText = formatWon(local.exp);
+        const expDiff = local.exp - 53.9;
+        const expSubElem = document.getElementById('kpi-exp-sub');
+        if (expSubElem) {
+            expSubElem.innerHTML = `
+                <span class="text-[#0284c7] font-bold">1회 여행 지출</span>
+                <span class="${expDiff >= 0 ? 'text-blue-600' : 'text-slate-500'} font-bold">
+                    ${expDiff >= 0 ? `+${formatWon(expDiff)}` : `-${formatWon(Math.abs(expDiff))}`}
+                </span>
+            `;
+        }
+
+        const satElem = document.getElementById('kpi-sat-val');
+        if (satElem) satElem.innerText = `${local.sat}점`;
+        const satDiff = (local.sat - 80.3).toFixed(1);
+        const satSubElem = document.getElementById('kpi-sat-sub');
+        if (satSubElem) {
+            satSubElem.innerHTML = `
+                <span class="text-emerald-700 font-bold">전반적 만족도</span>
+                <span class="${satDiff >= 0 ? 'text-emerald-600' : 'text-slate-500'} font-bold">
+                    ${satDiff >= 0 ? `+${satDiff}점` : `${satDiff}점`}
+                </span>
+            `;
+        }
+
+        const rebElem = document.getElementById('kpi-reb-val');
+        if (rebElem) rebElem.innerText = `${local.reb}점`;
+        const rebSubElem = document.getElementById('kpi-reb-sub');
+        if (rebSubElem) {
+            rebSubElem.innerHTML = `
+                <span class="text-purple-700 font-bold">재방문 의향</span>
+                <span class="text-purple-600 font-bold">${local.reb >= 76.0 ? '상위권' : '보통'}</span>
+            `;
+        }
+
+        const costElem = document.getElementById('kpi-cost-val');
+        if (costElem) costElem.innerText = `${local.cost}점`;
+        const costSubElem = document.getElementById('kpi-cost-sub');
+        if (costSubElem) {
+            costSubElem.innerHTML = `
+                <span class="text-amber-700 font-bold">체감 물가</span>
+                <span class="${local.cost >= 72.0 ? 'text-emerald-600' : 'text-rose-500'} font-bold">
+                    ${local.cost >= 72.0 ? '물가 만족' : '물가 불만 상존'}
+                </span>
+            `;
+        }
+
+        renderTripTypeBarChart(local.daySat, local.staySat, fullName);
+    }
+
+    // 5. 하단 17개 광역시도 벤치마크 바 차트 & 랭킹 테이블 강조 동기화 (선택 지역 빨간색 하이라이트)
+    loadRegionalBenchmark();
+
+    // 6. 서버 API 데이터 비동기 연동
     try {
         const res = await fetch(`/api/region-summary/${encodeURIComponent(shortName)}`);
         const data = await res.json();
@@ -142,11 +226,6 @@ async function selectRegion(regionName) {
         }
     } catch (e) {
         console.error('지역 브리핑 로드 오류:', e);
-    }
-
-    // 벤치마크 바 차트 & 랭킹 테이블 강조 동기화
-    if (regionalBenchmarkBarChart) {
-        loadRegionalBenchmark();
     }
 }
 
@@ -250,10 +329,10 @@ function renderTripTypeBarChart(dayTrip, stayTrip, fullName) {
     const ctx = canvas.getContext('2d');
     if (tripTypeBarChart) tripTypeBarChart.destroy();
 
-    const dayVal = (dayTrip && dayTrip.val) || 0;
-    const dayAvg = (dayTrip && dayTrip.avg) || 0;
-    const stayVal = (stayTrip && stayTrip.val) || 0;
-    const stayAvg = (stayTrip && stayTrip.avg) || 0;
+    const dayVal = typeof dayTrip === 'number' ? dayTrip : ((dayTrip && dayTrip.val) || 0);
+    const dayAvg = (dayTrip && dayTrip.avg) || 79.4;
+    const stayVal = typeof stayTrip === 'number' ? stayTrip : ((stayTrip && stayTrip.val) || 0);
+    const stayAvg = (stayTrip && stayTrip.avg) || 81.1;
 
     tripTypeBarChart = new Chart(ctx, {
         type: 'bar',
@@ -790,6 +869,16 @@ function renderAgePyramid(data) {
 
 // 10. 탭 전환
 function switchTab(tabId) {
+    if (tabId === 'tab-compare') {
+        switchTab('tab-summary');
+        const benchSec = document.getElementById('benchmark-section');
+        if (benchSec) {
+            benchSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+        loadRegionalBenchmark();
+        return;
+    }
+
     document.querySelectorAll('.tab-content').forEach(el => el.classList.add('hidden'));
     document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
 
@@ -799,7 +888,7 @@ function switchTab(tabId) {
     const targetBtn = document.getElementById(`btn-${tabId}`);
     if (targetBtn) targetBtn.classList.add('active');
 
-    if (tabId === 'tab-compare') {
+    if (tabId === 'tab-summary') {
         loadRegionalBenchmark();
     }
     if (tabId === 'tab-trend' && comboTrendChart) comboTrendChart.resize();
@@ -961,14 +1050,15 @@ function refreshCurrentView() {
 
 // 13. AI 데이터랩 질의응답
 async function handleChatSubmit(e) {
-    e.preventDefault();
+    if (e && e.preventDefault) e.preventDefault();
     const input = document.getElementById('chat-input');
+    if (!input) return;
     const msg = input.value.trim();
     if (!msg) return;
 
     input.value = '';
     appendChatMessage('user', msg);
-    const loadingId = appendChatMessage('ai', '본 사이트 탑재 데이터 확인 중...');
+    const loadingId = appendChatMessage('ai', '본 사이트 탑재 데이터 분석 중...');
 
     try {
         const res = await fetch('/api/chat', {
@@ -989,10 +1079,15 @@ async function handleChatSubmit(e) {
     }
 }
 
-function sendQuickChat(prompt) {
-    document.getElementById('chat-input').value = prompt;
+async function sendQuickChat(prompt) {
+    const input = document.getElementById('chat-input');
+    if (input) input.value = prompt;
     switchTab('tab-chat');
-    document.getElementById('chat-form').dispatchEvent(new Event('submit'));
+    const chatContainer = document.getElementById('chat-messages');
+    if (chatContainer) {
+        chatContainer.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
+    await handleChatSubmit();
 }
 
 function appendChatMessage(sender, text) {
