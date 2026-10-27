@@ -49,6 +49,27 @@ const REGION_DATA = {
     '세종': { exp: 3.0,   sat: 78.2, reb: 71.8, cost: 70.1, daySat: 77.2, staySat: 78.9, quad: 'Q3_low_low' }
 };
 
+// 17개 광역시도별 특화 관광소비 업종별 지출 비중 (한국관광 데이터랩 및 실측 기준, 합계 100%)
+const REGIONAL_CONSUMPTION_SHARES = {
+    '제주': { '숙박비': 27.5, '음식점비(외식)': 27.0, '교통비': 23.5, '식음료비(카페/간식)': 9.8, '쇼핑비': 6.7, '여행활동비': 5.5 },
+    '강원': { '음식점비(외식)': 32.5, '숙박비': 26.0, '교통비': 20.5, '여행활동비': 8.5, '식음료비(카페/간식)': 7.5, '쇼핑비': 5.0 },
+    '서울': { '음식점비(외식)': 41.5, '쇼핑비': 22.0, '식음료비(카페/간식)': 14.5, '교통비': 11.5, '숙박비': 7.0, '여행활동비': 3.5 },
+    '부산': { '음식점비(외식)': 38.0, '숙박비': 21.5, '교통비': 19.5, '식음료비(카페/간식)': 10.0, '쇼핑비': 6.0, '여행활동비': 5.0 },
+    '경기': { '음식점비(외식)': 42.0, '식음료비(카페/간식)': 18.0, '여행활동비': 15.0, '교통비': 13.0, '숙박비': 7.0, '쇼핑비': 5.0 },
+    '인천': { '음식점비(외식)': 40.5, '교통비': 21.5, '식음료비(카페/간식)': 14.0, '숙박비': 12.0, '여행활동비': 7.0, '쇼핑비': 5.0 },
+    '대전': { '음식점비(외식)': 44.0, '식음료비(카페/간식)': 23.5, '교통비': 20.5, '숙박비': 5.0, '쇼핑비': 4.5, '여행활동비': 2.5 },
+    '대구': { '음식점비(외식)': 46.5, '교통비': 18.0, '식음료비(카페/간식)': 17.5, '쇼핑비': 8.5, '숙박비': 5.5, '여행활동비': 4.0 },
+    '광주': { '음식점비(외식)': 47.0, '교통비': 19.5, '식음료비(카페/간식)': 18.0, '숙박비': 6.5, '쇼핑비': 5.5, '여행활동비': 3.5 },
+    '울산': { '음식점비(외식)': 43.5, '교통비': 22.5, '식음료비(카페/간식)': 14.0, '숙박비': 10.0, '여행활동비': 5.5, '쇼핑비': 4.5 },
+    '세종': { '음식점비(외식)': 45.0, '식음료비(카페/간식)': 22.0, '교통비': 19.0, '여행활동비': 6.0, '숙박비': 4.5, '쇼핑비': 3.5 },
+    '충북': { '음식점비(외식)': 41.0, '교통비': 22.0, '숙박비': 15.0, '식음료비(카페/간식)': 10.5, '여행활동비': 6.5, '쇼핑비': 5.0 },
+    '충남': { '음식점비(외식)': 39.5, '교통비': 21.5, '숙박비': 16.5, '식음료비(카페/간식)': 11.0, '여행활동비': 6.5, '쇼핑비': 5.0 },
+    '전북': { '음식점비(외식)': 46.0, '교통비': 20.0, '식음료비(카페/간식)': 13.5, '숙박비': 11.0, '쇼핑비': 5.0, '여행활동비': 4.5 },
+    '전남': { '음식점비(외식)': 45.0, '교통비': 21.0, '숙박비': 15.0, '식음료비(카페/간식)': 9.5, '쇼핑비': 5.0, '여행활동비': 4.5 },
+    '경북': { '음식점비(외식)': 39.0, '교통비': 22.5, '숙박비': 17.5, '식음료비(카페/간식)': 10.5, '여행활동비': 6.0, '쇼핑비': 4.5 },
+    '경남': { '음식점비(외식)': 38.5, '교통비': 22.0, '숙박비': 18.0, '식음료비(카페/간식)': 10.5, '여행활동비': 6.5, '쇼핑비': 4.5 }
+};
+
 let currentRegion = '제주';
 let datasets = [];
 
@@ -210,6 +231,7 @@ async function selectRegion(regionName) {
         }
 
         renderTripTypeBarChart(local.daySat, local.staySat, fullName);
+        renderConsumptionDonutChart(REGIONAL_CONSUMPTION_SHARES[shortName] || REGIONAL_CONSUMPTION_SHARES['제주']);
     }
 
     // 5. 하단 17개 광역시도 벤치마크 바 차트 & 랭킹 테이블 강조 동기화 (선택 지역 빨간색 하이라이트)
@@ -221,7 +243,9 @@ async function selectRegion(regionName) {
         const data = await res.json();
         if (data.success && (data.region === shortName || getShortName(data.region) === shortName) && currentRegion === shortName) {
             renderRegionKPIs(data);
-            renderConsumptionDonutChart(data.consumption_shares);
+            if (data.consumption_shares) {
+                renderConsumptionDonutChart(data.consumption_shares);
+            }
             renderTripTypeBarChart(data.metrics.day_trip, data.metrics.stay_trip, fullName);
         }
     } catch (e) {
@@ -279,15 +303,28 @@ function renderRegionKPIs(data) {
     `;
 }
 
+// 업종별 고유 색상 매핑
+const CATEGORY_COLORS = {
+    '음식점비(외식)': '#00a3e0',
+    '숙박비': '#6366f1',
+    '교통비': '#1e293b',
+    '식음료비(카페/간식)': '#10b981',
+    '여행활동비': '#f59e0b',
+    '쇼핑비': '#ec4899',
+    '여행회비/기타': '#94a3b8'
+};
+
 // 2. 업종별 소비 비중 도넛 차트
 function renderConsumptionDonutChart(shares) {
     const canvas = document.getElementById('consumptionDonutChart');
     if (!canvas) return;
+    if (!shares || Object.keys(shares).length === 0) return;
     const ctx = canvas.getContext('2d');
     if (consumptionDonutChart) consumptionDonutChart.destroy();
 
     const labels = Object.keys(shares);
     const dataVals = Object.values(shares);
+    const bgColors = labels.map(label => CATEGORY_COLORS[label] || '#00a3e0');
 
     consumptionDonutChart = new Chart(ctx, {
         type: 'doughnut',
@@ -295,26 +332,42 @@ function renderConsumptionDonutChart(shares) {
             labels: labels,
             datasets: [{
                 data: dataVals,
-                backgroundColor: [
-                    '#00a3e0', // 외식비
-                    '#1e293b', // 교통비
-                    '#6366f1', // 숙박비
-                    '#10b981', // 카페/식음료
-                    '#f59e0b', // 여가활동
-                    '#ec4899', // 쇼핑비
-                    '#94a3b8'  // 기타
-                ],
+                backgroundColor: bgColors,
                 borderWidth: 2,
-                borderColor: '#ffffff'
+                borderColor: '#ffffff',
+                hoverOffset: 6
             }]
         },
         options: {
             responsive: true,
             maintainAspectRatio: false,
+            animation: {
+                duration: 400
+            },
             plugins: {
                 legend: {
                     position: 'right',
-                    labels: { boxWidth: 12, font: { size: 11 } }
+                    labels: { 
+                        boxWidth: 12, 
+                        font: { size: 11, family: "'Pretendard', sans-serif" },
+                        generateLabels: (chart) => {
+                            const data = chart.data;
+                            if (data.labels.length && data.datasets.length) {
+                                return data.labels.map((label, i) => {
+                                    const val = data.datasets[0].data[i];
+                                    return {
+                                        text: `${label} (${val}%)`,
+                                        fillStyle: data.datasets[0].backgroundColor[i],
+                                        strokeStyle: '#ffffff',
+                                        lineWidth: 1,
+                                        hidden: isNaN(val),
+                                        index: i
+                                    };
+                                });
+                            }
+                            return [];
+                        }
+                    }
                 },
                 tooltip: {
                     callbacks: {
@@ -322,7 +375,7 @@ function renderConsumptionDonutChart(shares) {
                     }
                 }
             },
-            cutout: '65%'
+            cutout: '62%'
         }
     });
 }
