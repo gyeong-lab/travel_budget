@@ -3,450 +3,760 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>국내 여행지 지출액 & 만족도 상관분석 시스템</title>
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <meta http-equiv="Pragma" content="no-cache">
+    <meta http-equiv="Expires" content="0">
+    <title>한국 관광지 관련 데이터 분석 - 물가·지출 & 만족도 종합 통계</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <!-- Chart.js CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/style.css">
+    <link rel="stylesheet" href="/static/style.css?v=20261027_3">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
-<body class="bg-slate-50 text-slate-800 min-h-screen flex flex-col font-sans">
+<body class="bg-[#f4f6fa] text-[#1e293b] min-h-screen flex flex-col font-sans">
 
-    <!-- 상단 헤더 -->
-    <header class="bg-indigo-900 text-white shadow-lg">
-        <div class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8 flex flex-col md:flex-row justify-between items-center gap-4">
-            <div>
-                <div class="flex items-center gap-3">
-                    <span class="bg-indigo-700 p-2.5 rounded-xl shadow-inner text-amber-300 text-2xl">
-                        <i class="fa-solid fa-chart-line"></i>
-                    </span>
-                    <div>
-                        <h1 class="text-2xl font-bold tracking-tight">국내 여행지 지출액 & 만족도 인사이트 분석</h1>
-                        <p class="text-xs text-indigo-200 mt-0.5">KOSIS 및 국민여행조사 실측 데이터 기반 상관·회귀분석 및 합리적 여행지 추천</p>
-                    </div>
-                </div>
+    <!-- 🌟 최상단 GNB 헤더 -->
+    <header class="bg-[#0b1b3d] text-white shadow-md border-b border-[#1b2e59]">
+        <div class="max-w-7xl mx-auto px-4 py-4 sm:px-6 lg:px-8 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-3">
+            <div class="flex items-center gap-3">
+                <span class="bg-[#00a3e0] text-white font-black px-2.5 py-1 rounded text-xs tracking-wider flex items-center gap-1 shadow-sm">
+                    <i class="fa-solid fa-chart-pie"></i> 통계분석
+                </span>
+                <h1 class="text-xl sm:text-2xl font-black tracking-tight text-white flex items-center gap-2">
+                    한국 관광지 관련 데이터 분석
+                </h1>
             </div>
-            <!-- 핵심 규칙 뱃지 -->
-            <div class="flex flex-wrap items-center gap-2 text-xs">
-                <span class="bg-indigo-800 border border-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <i class="fa-solid fa-check-circle text-emerald-400"></i> 실측 데이터 100%
-                </span>
-                <span class="bg-indigo-800 border border-indigo-700 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <i class="fa-solid fa-calculator text-cyan-400"></i> 표본수 N & p-value 검정
-                </span>
-                <span class="bg-amber-500/20 text-amber-300 border border-amber-500/30 px-3 py-1.5 rounded-lg flex items-center gap-1.5">
-                    <i class="fa-solid fa-triangle-exclamation"></i> CPI 지역간 절대비교 금지
+            <div class="flex items-center gap-2 text-xs">
+                <span class="bg-[#162a52] text-[#38bdf8] border border-[#234079] px-3.5 py-1.5 rounded-full flex items-center gap-1.5 font-bold shadow-2xs">
+                    <i class="fa-solid fa-database text-[#38bdf8]"></i> 본 사이트 탑재 데이터 기준
                 </span>
             </div>
         </div>
     </header>
 
-    <!-- 원칙 안내 공지 배너 -->
-    <section class="bg-amber-50 border-b border-amber-200 px-4 py-3 text-xs text-amber-900">
-        <div class="max-w-7xl mx-auto flex items-start gap-2.5">
-            <i class="fa-solid fa-circle-info text-amber-600 mt-0.5 text-sm"></i>
-            <div>
-                <strong>통계 분석 원칙 준수 알림:</strong>
-                소비자물가지수(CPI)는 시계열 가격 변동률 측정 지표이므로 지역 간 물가수준 절대 비교에 사용할 수 없습니다.
-                본 대시보드는 KOSIS 국민여행조사의 <strong>실제 지출액 및 체감 물가/만족도 설문 실측치</strong>만을 사용하며,
-                인위적 가중치나 없는 수치를 생성하지 않고 표본수와 통계적 유의성(p-value)을 명시합니다.
+    <!-- 🌟 브레드크럼 & 조사 기준 안내 -->
+    <div class="bg-white border-b border-slate-200/80 shadow-2xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex items-center justify-between overflow-x-auto py-2 text-xs font-semibold text-slate-600">
+            <div class="flex items-center gap-2 text-slate-400">
+                <i class="fa-solid fa-house"></i>
+                <span>홈</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="text-slate-600 font-bold">지역별 데이터</span> <i class="fa-solid fa-chevron-right text-[10px]"></i>
+                <span class="text-[#00a3e0] font-bold">한국 관광지 관련 데이터 분석</span>
+            </div>
+            <div class="text-[11px] text-slate-500 font-semibold hidden sm:block">
+                기준: 본 사이트 탑재 데이터 (전국 17개 광역시도 전수 N=17)
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- 네비게이션 탭 -->
-    <nav class="bg-white border-b border-slate-200 shadow-sm sticky top-0 z-30">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex space-x-2 sm:space-x-8 overflow-x-auto py-2 text-sm font-medium">
-                <button onclick="switchTab('tab-compare')" id="btn-tab-compare" class="tab-btn active px-3 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-chart-bar"></i> 1. 지역별 평균 비교
+    <!-- 🌟 최상단 공통 필터 바 & 액션 버튼 -->
+    <div class="bg-white border-b border-slate-200">
+        <div class="max-w-7xl mx-auto px-4 py-3 sm:px-6 lg:px-8 flex flex-col md:flex-row md:items-center justify-between gap-3 text-xs">
+            <!-- 좌측 필터 조건 -->
+            <div class="flex flex-wrap items-center gap-2.5">
+                <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                    <span class="text-slate-500 font-bold">지역:</span>
+                    <select id="global-region-select" onchange="onGlobalRegionChange(this.value)" class="bg-transparent font-bold text-[#0b1b3d] outline-none cursor-pointer">
+                        <option value="전국">전국 (전체 17개 시도)</option>
+                        <option value="서울특별시">서울특별시</option>
+                        <option value="부산광역시">부산광역시</option>
+                        <option value="대구광역시">대구광역시</option>
+                        <option value="인천광역시">인천광역시</option>
+                        <option value="광주광역시">광주광역시</option>
+                        <option value="대전광역시">대전광역시</option>
+                        <option value="울산광역시">울산광역시</option>
+                        <option value="세종특별자치시">세종특별자치시</option>
+                        <option value="경기도">경기도</option>
+                        <option value="강원특별자치도">강원특별자치도</option>
+                        <option value="충청북도">충청북도</option>
+                        <option value="충청남도">충청남도</option>
+                        <option value="전북특별자치도">전북특별자치도</option>
+                        <option value="전라남도">전라남도</option>
+                        <option value="경상북도">경상북도</option>
+                        <option value="경상남도">경상남도</option>
+                        <option value="제주특별자치도" selected>제주특별자치도</option>
+                    </select>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                    <span class="text-slate-500 font-bold">기준:</span>
+                    <span class="font-bold text-[#0b1b3d]">본 사이트 탑재 데이터</span>
+                </div>
+
+                <div class="flex items-center gap-1.5 bg-slate-100 px-2.5 py-1.5 rounded-lg border border-slate-200">
+                    <span class="text-slate-500 font-bold">분석 지표:</span>
+                    <span class="font-bold text-[#00a3e0]">1인 지출액(원) ↔ 종합만족도</span>
+                </div>
+
+                <button onclick="refreshCurrentView()" class="bg-[#00a3e0] hover:bg-[#0284c7] text-white font-bold px-4 py-1.5 rounded-lg transition shadow-2xs flex items-center gap-1">
+                    <i class="fa-solid fa-magnifying-glass"></i> 조회
                 </button>
-                <button onclick="switchTab('tab-correlation')" id="btn-tab-correlation" class="tab-btn px-3 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-chart-line"></i> 2. 상관관계 & 회귀분석
+            </div>
+
+            <!-- 우측 액션 버튼 2종 -->
+            <div class="flex items-center gap-1.5">
+                <button onclick="addToMyDataLab()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold px-3 py-1.5 rounded-lg transition shadow-2xs flex items-center gap-1">
+                    <i class="fa-solid fa-plus text-[#00a3e0]"></i> 분석 지표 저장
                 </button>
-                <button onclick="switchTab('tab-quadrant')" id="btn-tab-quadrant" class="tab-btn px-3 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-table-cells-large"></i> 3. 예산별 합리적 여행지 (4분면)
-                </button>
-                <button onclick="switchTab('tab-upload')" id="btn-tab-upload" class="tab-btn px-3 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-file-csv"></i> 4. KOSIS CSV 업로드 & 관리
-                </button>
-                <button onclick="switchTab('tab-chat')" id="btn-tab-chat" class="tab-btn px-3 py-2 rounded-lg flex items-center gap-2">
-                    <i class="fa-solid fa-comments"></i> 5. AI 후속질문 분석가
+                <button onclick="saveChartImage()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold px-3 py-1.5 rounded-lg transition shadow-2xs flex items-center gap-1">
+                    <i class="fa-regular fa-image text-emerald-600"></i> 차트 그림 저장
                 </button>
             </div>
         </div>
-    </nav>
+    </div>
 
-    <!-- 메인 컨테이너 -->
-    <main class="max-w-7xl mx-auto px-4 py-6 sm:px-6 lg:px-8 flex-1 w-full">
+    <!-- 메인 대시보드 영역 -->
+    <main class="max-w-7xl mx-auto px-4 py-5 sm:px-6 lg:px-8 flex-1 w-full space-y-6">
 
-        <!-- 탭 1: 지역별 평균 비교 -->
-        <div id="tab-compare" class="tab-content">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
+        <!-- 🌟 메인 네비게이션 탭 -->
+        <nav class="bg-white border border-slate-200/80 shadow-2xs rounded-2xl p-1.5 sticky top-2 z-30">
+            <div class="flex space-x-1.5 overflow-x-auto text-xs font-bold text-slate-600">
+                <button onclick="switchTab('tab-summary')" id="btn-tab-summary" class="tab-btn active px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-gauge-high text-blue-500"></i> 1. 지역별 관광현황 & 소비
+                </button>
+                <button onclick="switchTab('tab-compare')" id="btn-tab-compare" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-column text-indigo-500"></i> 2. 17개 시도 벤치마크 랭킹 & 비교 바 차트
+                </button>
+                <button onclick="switchTab('tab-treemap')" id="btn-tab-treemap" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-shapes text-emerald-500"></i> 3. 17개 시도 비중 (트리맵)
+                </button>
+                <button onclick="switchTab('tab-trend')" id="btn-tab-trend" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-chart-line text-cyan-500"></i> 4. 지출 & 만족도 추세 (콤보)
+                </button>
+                <button onclick="switchTab('tab-quadrant')" id="btn-tab-quadrant" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-table-cells-large text-amber-500"></i> 5. 가성비 4사분면 체류특성
+                </button>
+                <button onclick="switchTab('tab-age')" id="btn-tab-age" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5">
+                    <i class="fa-solid fa-users text-purple-500"></i> 6. 연령·성별 소비 패턴
+                </button>
+                <button onclick="switchTab('tab-chat')" id="btn-tab-chat" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-indigo-600">
+                    <i class="fa-solid fa-robot"></i> 7. AI 분석 어시스턴트
+                </button>
+                <button onclick="switchTab('tab-datasets')" id="btn-tab-datasets" class="tab-btn px-4 py-2.5 rounded-xl flex items-center gap-1.5 text-slate-700">
+                    <i class="fa-solid fa-database text-rose-500"></i> 8. 원천 데이터셋 관리 & 추가
+                </button>
+            </div>
+        </nav>
+
+        <!-- ========================================== -->
+        <!-- 탭 1: 지역별 관광현황 & 소비 -->
+        <!-- ========================================== -->
+        <div id="tab-summary" class="tab-content space-y-6">
+            <!-- 17개 광역시도 풀네임 선택 칩 바 -->
+            <section class="bg-white p-4 sm:p-5 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-3">
+                    <h2 class="text-sm font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                        <i class="fa-solid fa-location-dot text-[#00a3e0]"></i> 분석 대상 시도 선택 (17개 광역시도)
+                    </h2>
+                    <span class="text-xs text-slate-500">지역 버튼을 클릭하면 지출액(원)과 만족도가 즉시 전환됩니다.</span>
+                </div>
+                <div class="flex flex-wrap gap-1.5" id="region-chips-bar">
+                    <!-- JS 자동 렌더링 -->
+                </div>
+            </section>
+
+            <!-- 선택된 지역 종합 브리핑 & KPI 카드 그리드 -->
+            <section class="bg-white p-5 sm:p-6 rounded-2xl shadow-xs border border-slate-200/80" id="selected-region-dashboard">
+                <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 mb-5 border-b border-slate-100">
+                    <div>
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-2xl font-black text-[#0b1b3d]" id="kpi-region-title">제주특별자치도</span>
+                            <span class="bg-[#e0f2fe] text-[#0284c7] font-extrabold text-xs px-3 py-1 rounded-full shadow-2xs" id="kpi-quadrant-badge">고비용·고만족 (프리미엄 체험지)</span>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-1">한국 관광지 관련 데이터 분석 종합 진단 결과입니다.</p>
+                    </div>
+                    <div class="flex items-center gap-2 text-xs font-semibold text-slate-600 bg-slate-50 px-3 py-2 rounded-xl border border-slate-200/60">
+                        <i class="fa-solid fa-circle-info text-[#00a3e0]"></i> 본 사이트 탑재 데이터 기준 (단위: 원, 점)
+                    </div>
+                </div>
+
+                <!-- 4대 핵심 KPI 카드 (원 단위 표기) -->
+                <div class="grid grid-cols-2 md:grid-cols-4 gap-3.5 mb-6">
+                    <!-- 1. 지출액 (원 단위 & 출처/정의 명시) -->
+                    <div class="bg-gradient-to-br from-[#f8faff] to-white p-4 rounded-xl border border-blue-100 shadow-2xs flex flex-col justify-between">
+                        <div>
+                            <div class="flex items-center justify-between text-xs text-slate-500 font-bold">
+                                <span>1인 평균 지출액 (1회 여행당)</span>
+                                <i class="fa-solid fa-credit-card text-[#00a3e0]"></i>
+                            </div>
+                            <div class="text-2xl font-black text-[#0b1b3d] mt-2" id="kpi-exp-val">135,000원</div>
+                            <div class="text-[11px] font-semibold mt-1 flex items-center justify-between" id="kpi-exp-sub">
+                                <span class="text-[#0284c7]">전국 1위</span>
+                                <span class="text-blue-600 font-bold">+81,100원</span>
+                            </div>
+                        </div>
+                        <div class="mt-2.5 pt-2 border-t border-slate-200/60 text-[10px] text-slate-400 space-y-0.5 leading-tight">
+                            <div>• <strong>지표 정의</strong>: 해당 여행지 <strong>1회 방문당 1인 총 지출액</strong> (당일·숙박 통합)</div>
+                            <div>• <strong>원천 통계</strong>: KOSIS 국민여행조사 실측 통계표</div>
+                        </div>
+                    </div>
+
+                    <!-- 2. 만족도 -->
+                    <div class="bg-gradient-to-br from-[#f0fdf4] to-white p-4 rounded-xl border border-emerald-100 shadow-2xs">
+                        <div class="flex items-center justify-between text-xs text-slate-500 font-bold">
+                            <span>전반적 관광 만족도</span>
+                            <i class="fa-solid fa-star text-emerald-500"></i>
+                        </div>
+                        <div class="text-2xl font-black text-emerald-700 mt-2" id="kpi-sat-val">83.2점</div>
+                        <div class="text-[11px] font-semibold mt-1 flex items-center justify-between" id="kpi-sat-sub">
+                            <span class="text-emerald-700">전국 1위</span>
+                            <span class="text-emerald-600 font-bold">+2.9점</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. 재방문 의향 -->
+                    <div class="bg-gradient-to-br from-[#faf5ff] to-white p-4 rounded-xl border border-purple-100 shadow-2xs">
+                        <div class="flex items-center justify-between text-xs text-slate-500 font-bold">
+                            <span>향후 재방문 의향</span>
+                            <i class="fa-solid fa-rotate-right text-purple-500"></i>
+                        </div>
+                        <div class="text-2xl font-black text-purple-700 mt-2" id="kpi-reb-val">78.4점</div>
+                        <div class="text-[11px] font-semibold mt-1 flex items-center justify-between" id="kpi-reb-sub">
+                            <span class="text-purple-700">전국 3위</span>
+                            <span class="text-purple-600 font-bold">재방문 의향 상위</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. 체감 물가 만족도 -->
+                    <div class="bg-gradient-to-br from-[#fffbeb] to-white p-4 rounded-xl border border-amber-100 shadow-2xs">
+                        <div class="flex items-center justify-between text-xs text-slate-500 font-bold">
+                            <span>관광지 체감 물가만족도</span>
+                            <i class="fa-solid fa-scale-balanced text-amber-500"></i>
+                        </div>
+                        <div class="text-2xl font-black text-amber-700 mt-2" id="kpi-cost-val">71.6점</div>
+                        <div class="text-[11px] font-semibold mt-1 flex items-center justify-between" id="kpi-cost-sub">
+                            <span class="text-amber-700">전국 14위</span>
+                            <span class="text-rose-500 font-bold">물가 불만 상존</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 하단 2분할: 관광소비 업종별 비중 도넛 차트 vs 당일/숙박 만족도 비교 -->
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 pt-4 border-t border-slate-100">
+                    <div>
+                        <h3 class="text-sm font-extrabold text-[#0b1b3d] mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-receipt text-[#00a3e0]"></i> 관광소비 업종별 지출 비중 (구매항목 빅데이터)
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">여행객 1인이 지출하는 비용 중 가장 큰 비중을 차지하는 항목 구성입니다.</p>
+                        <div class="h-64 relative flex items-center justify-center">
+                            <canvas id="consumptionDonutChart"></canvas>
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 class="text-sm font-extrabold text-[#0b1b3d] mb-1 flex items-center gap-1.5">
+                            <i class="fa-solid fa-hotel text-indigo-500"></i> 여행 형태별 만족도 비교 (당일여행 vs 숙박여행)
+                        </h3>
+                        <p class="text-xs text-slate-500 mb-3">숙박 여부에 따른 만족도 격차 분석입니다.</p>
+                        <div class="h-64 relative">
+                            <canvas id="tripTypeBarChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 탭 2: 17개 시도 벤치마크 랭킹 & 비교 바 차트 -->
+        <!-- ========================================== -->
+        <div id="tab-compare" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
                 <div class="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-6">
                     <div>
-                        <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                            <i class="fa-solid fa-chart-column text-indigo-600"></i> 17개 광역시도별 실측 수치 비교
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-chart-column text-[#00a3e0]"></i> 17개 광역시도 벤치마크 랭킹 & 비교 바 차트
                         </h2>
-                        <p class="text-sm text-slate-500 mt-1">KOSIS 데이터셋과 하위 통계분류(소계, 성별, 연령별 등)를 선택하여 지역별 지표를 비교합니다.</p>
+                        <p class="text-xs text-slate-500 mt-1">
+                            지표를 선택하여 17개 시도의 순위와 격차를 비교합니다. 
+                            <strong class="text-[#00a3e0]">아래 순위 테이블의 지역명을 클릭하면 해당 지역으로 자동 전환됩니다.</strong>
+                        </p>
                     </div>
-                    <div class="flex flex-wrap items-center gap-3">
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">데이터셋 선택</label>
-                            <select id="compare-dataset-select" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </select>
-                        </div>
-                        <div>
-                            <label class="block text-xs font-semibold text-slate-600 mb-1">세부 분류(항목)</label>
-                            <select id="compare-sub-select" class="bg-slate-50 border border-slate-300 rounded-lg px-3 py-2 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                            </select>
-                        </div>
-                        <button onclick="loadRegionalComparison()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-4 py-2 rounded-lg text-sm transition shadow-sm mt-auto">
-                            <i class="fa-solid fa-magnifying-glass"></i> 조회
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <select id="compare-metric-select" onchange="loadRegionalBenchmark()" class="bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-xs font-semibold text-slate-700 outline-none">
+                            <option value="exp">1인 평균 지출액 (원)</option>
+                            <option value="sat">전반적 만족도 (점)</option>
+                            <option value="reb">향후 재방문 의향 (점)</option>
+                            <option value="cost">관광지 체감 물가만족도 (점)</option>
+                            <option value="vfm">가성비 효율성 지수 (만족도÷지출액)</option>
+                        </select>
+                        <button onclick="loadRegionalBenchmark()" class="bg-[#0b1b3d] hover:bg-[#162a52] text-white font-bold px-4 py-2 rounded-xl text-xs transition shadow-2xs">
+                            조회
                         </button>
                     </div>
                 </div>
 
-                <!-- 지표 통계 요약 카드 -->
-                <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6" id="compare-summary-cards">
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">유효 표본수 (N)</div>
-                        <div class="text-2xl font-bold text-slate-800 mt-1" id="cmp-n">-</div>
-                        <div class="text-xs text-slate-400 mt-0.5">17개 시도 기준</div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">전국 평균값</div>
-                        <div class="text-2xl font-bold text-indigo-600 mt-1" id="cmp-avg">-</div>
-                        <div class="text-xs text-slate-400 mt-0.5">시도 단순 평균</div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">최고 지역</div>
-                        <div class="text-2xl font-bold text-emerald-600 mt-1" id="cmp-max">-</div>
-                        <div class="text-xs text-slate-400 mt-0.5" id="cmp-max-val">-</div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-4 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">최저 지역</div>
-                        <div class="text-2xl font-bold text-rose-600 mt-1" id="cmp-min">-</div>
-                        <div class="text-xs text-slate-400 mt-0.5" id="cmp-min-val">-</div>
-                    </div>
-                </div>
-
-                <!-- 차트 영역 -->
+                <!-- 비교 바 차트 -->
                 <div class="h-80 w-full mb-6 relative">
-                    <canvas id="regionalBarChart"></canvas>
+                    <canvas id="regionalBenchmarkBarChart"></canvas>
                 </div>
 
-                <!-- 랭킹 테이블 -->
+                <!-- 랭킹 테이블 (클릭 시 자동 전환) -->
                 <div class="overflow-x-auto">
-                    <h3 class="text-sm font-bold text-slate-700 mb-2 flex items-center gap-1.5">
-                        <i class="fa-solid fa-list-ol text-indigo-500"></i> 지역별 실측 수치 랭킹
-                    </h3>
-                    <table class="w-full text-sm text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase">
                             <tr>
                                 <th class="p-3 border-b">순위</th>
-                                <th class="p-3 border-b">지역명</th>
+                                <th class="p-3 border-b">지역명 (클릭 시 자동 전환)</th>
                                 <th class="p-3 border-b">실측 수치</th>
-                                <th class="p-3 border-b">평균 대비 편차</th>
+                                <th class="p-3 border-b">전국 평균 대비 편차</th>
+                                <th class="p-3 border-b">이동 바로가기</th>
                             </tr>
                         </thead>
-                        <tbody id="ranking-tbody" class="divide-y divide-slate-100">
-                            <tr>
-                                <td colspan="4" class="p-4 text-center text-slate-400">데이터를 조회해 주세요.</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="benchmark-ranking-tbody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 2: 상관관계 & 회귀분석 -->
-        <div id="tab-correlation" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
-                <div class="mb-6">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-diagram-project text-indigo-600"></i> 상관관계 산점도 & OLS 회귀분석
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-1">
-                        독립변수(X)와 종속변수(Y)를 각각 선택하여 통계적 유의성(p-value), 결정계수(R²), 피어슨/스피어만 상관계수를 엄격하게 검정합니다.
-                    </p>
+        <!-- ========================================== -->
+        <!-- 탭 3: 17개 시도 비중 (트리맵 / 비례 타일맵) -->
+        <!-- ========================================== -->
+        <div id="tab-treemap" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-shapes text-[#00a3e0]"></i> 17개 광역시도 관광 지출액 & 만족도 비중 (트리맵 분석)
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            전국 17개 시도의 지출 규모(타일 크기)와 만족도 수준(색상 농도)을 직관적으로 시각화합니다. (타일 클릭 시 해당 지역으로 이동)
+                        </p>
+                    </div>
+                    <div class="flex items-center gap-2">
+                        <span class="text-xs text-slate-500 font-bold">색상 기준:</span>
+                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-emerald-700 bg-emerald-50 px-2.5 py-1 rounded-full border border-emerald-200">
+                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-500"></span> 높은 만족도 (81점 이상)
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-blue-700 bg-blue-50 px-2.5 py-1 rounded-full border border-blue-200">
+                            <span class="w-2.5 h-2.5 rounded-full bg-blue-500"></span> 중간 만족도 (79~81점)
+                        </span>
+                        <span class="inline-flex items-center gap-1 text-[11px] font-semibold text-amber-700 bg-amber-50 px-2.5 py-1 rounded-full border border-amber-200">
+                            <span class="w-2.5 h-2.5 rounded-full bg-amber-500"></span> 개선 필요 (79점 미만)
+                        </span>
+                    </div>
                 </div>
 
-                <!-- 변수 선택 패널 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 bg-slate-50 p-4 rounded-xl border border-slate-200 mb-6">
+                <!-- 트리맵 인터랙티브 그리드 -->
+                <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 pt-2" id="treemap-grid"></div>
+            </div>
+        </div>
+
+        <!-- ========================================== -->
+        <!-- 탭 4: 지출 & 만족도 추세 콤보 & Top 5 -->
+        <!-- ========================================== -->
+        <div id="tab-trend" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
                     <div>
-                        <div class="text-xs font-bold text-indigo-700 mb-2 flex items-center gap-1">
-                            <span class="w-2.5 h-2.5 rounded-full bg-indigo-600"></span> 독립변수 (X축 - 예: 지출액 또는 당일만족도)
-                        </div>
-                        <div class="space-y-2">
-                            <select id="corr-x-file" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm"></select>
-                            <select id="corr-x-sub" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm"></select>
-                        </div>
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-chart-line text-[#00a3e0]"></i> 17개 시도별 지출액(원) & 만족도 복합 비교 (콤보 차트)
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            막대(파란색): 1인 평균 지출액(원 단위, 좌측 Y축) | 꺾은선(주황색): 전반적 만족도 점수(우측 Y축)
+                        </p>
                     </div>
-                    <div>
-                        <div class="text-xs font-bold text-emerald-700 mb-2 flex items-center gap-1">
-                            <span class="w-2.5 h-2.5 rounded-full bg-emerald-600"></span> 종속변수 (Y축 - 예: 관광객 만족도)
-                        </div>
-                        <div class="space-y-2">
-                            <select id="corr-y-file" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm"></select>
-                            <select id="corr-y-sub" class="w-full bg-white border border-slate-300 rounded-lg p-2 text-sm"></select>
-                        </div>
-                    </div>
-                    <div class="md:col-span-2 flex justify-end">
-                        <button onclick="runCorrelationAnalysis()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-lg text-sm transition shadow-sm flex items-center gap-2">
-                            <i class="fa-solid fa-chart-line"></i> 상관·회귀분석 실행
+                    <div class="flex items-center gap-2">
+                        <button onclick="saveComboChartImage()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold px-3 py-1.5 rounded-lg text-xs transition shadow-2xs flex items-center gap-1">
+                            <i class="fa-regular fa-image text-emerald-600"></i> 차트 그림 저장
                         </button>
                     </div>
                 </div>
 
-                <!-- 통계 검정 결과 카드 그리드 -->
-                <div class="grid grid-cols-2 md:grid-cols-5 gap-3 mb-6" id="corr-stat-cards">
-                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">유효 표본수 (N)</div>
-                        <div class="text-xl font-bold text-slate-800 mt-1" id="stat-n">-</div>
-                        <div class="text-[11px] text-slate-400">자유도 df = <span id="stat-df">-</span></div>
+                <div class="h-80 w-full relative">
+                    <canvas id="comboTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Top 5 랭킹 그리드 2종 -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <!-- 만족도 Top 5 -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-trophy text-amber-500"></i> 전반적 관광 만족도 Top 5
+                        </h3>
+                        <span class="text-[11px] font-semibold text-slate-400">100점 만점 기준</span>
                     </div>
-                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">피어슨 상관 (r)</div>
-                        <div class="text-xl font-bold text-indigo-600 mt-1" id="stat-r">-</div>
-                        <div class="text-[11px] text-slate-400">순위 ρ: <span id="stat-rho">-</span></div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">결정계수 (R²)</div>
-                        <div class="text-xl font-bold text-purple-600 mt-1" id="stat-r2">-</div>
-                        <div class="text-[11px] text-slate-400">조정 R²: <span id="stat-adj-r2">-</span></div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">t-통계량</div>
-                        <div class="text-xl font-bold text-slate-700 mt-1" id="stat-t">-</div>
-                        <div class="text-[11px] text-slate-400">기울기 β1: <span id="stat-beta1">-</span></div>
-                    </div>
-                    <div class="bg-slate-50 border border-slate-200 p-3.5 rounded-xl">
-                        <div class="text-xs text-slate-500 font-medium">유의확률 (p-value)</div>
-                        <div class="text-xl font-bold" id="stat-p">-</div>
-                        <div class="text-[11px]" id="stat-sig-badge">-</div>
-                    </div>
+                    <div class="space-y-2.5" id="top5-satisfaction-list"></div>
                 </div>
 
-                <!-- 산점도 & 회귀선 차트 -->
-                <div class="h-96 w-full mb-6 relative">
-                    <canvas id="scatterRegressionChart"></canvas>
-                </div>
-
-                <!-- 통계 해석 보고서 -->
-                <div class="bg-slate-50 border border-slate-200 rounded-xl p-5" id="corr-report-container">
-                    <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-                        <i class="fa-solid fa-file-lines text-indigo-600"></i> 학술적 통계 검정 보고서
-                    </h3>
-                    <div id="corr-report-content" class="prose prose-sm max-w-none text-slate-700 leading-relaxed">
-                        상관·회귀분석을 실행하면 통계적 유의성 검정 결과 및 잔차 분석이 출력됩니다.
+                <!-- 가성비 Top 5 -->
+                <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                    <div class="flex items-center justify-between mb-4 pb-2 border-b border-slate-100">
+                        <h3 class="text-sm font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-thumbs-up text-emerald-500"></i> 최고 가성비(만족도÷지출액) Top 5
+                        </h3>
+                        <span class="text-[11px] font-semibold text-slate-400">효율성 지수 기준</span>
                     </div>
+                    <div class="space-y-2.5" id="top5-vfm-list"></div>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 3: 예산별 합리적 여행지 (4분면 매트릭스) -->
-        <div id="tab-quadrant" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
-                <div class="mb-6">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-scale-balanced text-indigo-600"></i> 예산 및 가성비 4분면 매트릭스
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-1">
-                        X축(비용/물가지표)과 Y축(만족도)의 평균값을 분기선으로 하여 17개 광역시도를 4개 권역으로 자동 분류합니다.
-                    </p>
+        <!-- ========================================== -->
+        <!-- 탭 5: 가성비 4사분면 체류특성 매트릭스 -->
+        <!-- ========================================== -->
+        <div id="tab-quadrant" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-table-cells-large text-[#00a3e0]"></i> 관광소비 & 만족도 4사분면 체류 특성 매트릭스
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            전국 평균 지출액(53,900원)과 평균 만족도(80.3점)의 십자 기준선을 중심으로 17개 시도의 포지션을 4개 권역으로 진단합니다.
+                        </p>
+                    </div>
+                    <button onclick="saveQuadrantChartImage()" class="bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 font-semibold px-3 py-1.5 rounded-lg text-xs transition shadow-2xs flex items-center gap-1">
+                        <i class="fa-regular fa-image text-emerald-600"></i> 차트 그림 저장
+                    </button>
                 </div>
 
-                <!-- 4분면 카드 요약 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-                    <!-- Q2: 저비용 고만족 (최고 추천) -->
-                    <div class="bg-emerald-50 border-2 border-emerald-300 p-4 rounded-xl shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-emerald-800 bg-emerald-100 px-2.5 py-1 rounded-md">제2사분면</span>
-                            <i class="fa-solid fa-crown text-emerald-600 text-lg"></i>
-                        </div>
-                        <h4 class="font-bold text-emerald-900 mt-2">최고 가성비 권역</h4>
-                        <p class="text-xs text-emerald-700 mt-0.5">저비용 / 고만족 (합리적 추천)</p>
-                        <div class="mt-3 text-sm font-semibold text-emerald-950" id="quad-q2-list">-</div>
+                <!-- 4개 권역 요약 카드 -->
+                <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-3 mb-5 text-xs">
+                    <div class="bg-emerald-50 border border-emerald-300 p-3.5 rounded-xl">
+                        <span class="font-extrabold text-emerald-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-check"></i> 제2사분면: 최고 가성비
+                        </span>
+                        <div class="text-[11px] text-emerald-700 mt-1">저비용·고만족 (알뜰 여행자 추천)</div>
+                        <div class="font-black text-emerald-950 text-xs mt-1.5" id="quad-q2-regions">전북특별자치도, 광주광역시</div>
                     </div>
-                    <!-- Q1: 고비용 고만족 -->
-                    <div class="bg-indigo-50 border border-indigo-200 p-4 rounded-xl shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-indigo-800 bg-indigo-100 px-2.5 py-1 rounded-md">제1사분면</span>
-                            <i class="fa-solid fa-gem text-indigo-600 text-lg"></i>
-                        </div>
-                        <h4 class="font-bold text-indigo-900 mt-2">프리미엄 권역</h4>
-                        <p class="text-xs text-indigo-700 mt-0.5">고비용 / 고만족 (고품격 여행)</p>
-                        <div class="mt-3 text-sm font-semibold text-indigo-950" id="quad-q1-list">-</div>
+                    <div class="bg-blue-50 border border-blue-300 p-3.5 rounded-xl">
+                        <span class="font-extrabold text-blue-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-gem"></i> 제1사분면: 프리미엄 체험
+                        </span>
+                        <div class="text-[11px] text-blue-700 mt-1">고비용·고만족 (힐링/휴양 최적지)</div>
+                        <div class="font-black text-blue-950 text-xs mt-1.5" id="quad-q1-regions">제주특별자치도, 강원특별자치도, 부산광역시, 경상남도, 전라남도, 충청남도</div>
                     </div>
-                    <!-- Q3: 저비용 저만족 -->
-                    <div class="bg-slate-100 border border-slate-200 p-4 rounded-xl shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-slate-700 bg-slate-200 px-2.5 py-1 rounded-md">제3사분면</span>
-                            <i class="fa-solid fa-coins text-slate-500 text-lg"></i>
-                        </div>
-                        <h4 class="font-bold text-slate-800 mt-2">알뜰 실속 권역</h4>
-                        <p class="text-xs text-slate-600 mt-0.5">저비용 / 저만족 (경제적 체류)</p>
-                        <div class="mt-3 text-sm font-semibold text-slate-800" id="quad-q3-list">-</div>
+                    <div class="bg-slate-100 border border-slate-300 p-3.5 rounded-xl">
+                        <span class="font-extrabold text-slate-700 flex items-center gap-1.5">
+                            <i class="fa-solid fa-wallet"></i> 제3사분면: 실속형 체류
+                        </span>
+                        <div class="text-[11px] text-slate-600 mt-1">저비용·저만족 (도심형/단기 여행)</div>
+                        <div class="font-black text-slate-800 text-xs mt-1.5" id="quad-q3-regions">서울특별시, 대구광역시, 인천광역시, 대전광역시, 울산광역시, 세종특별자치시, 충청북도</div>
                     </div>
-                    <!-- Q4: 고비용 저만족 -->
-                    <div class="bg-rose-50 border border-rose-200 p-4 rounded-xl shadow-sm">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-bold text-rose-800 bg-rose-100 px-2.5 py-1 rounded-md">제4사분면</span>
-                            <i class="fa-solid fa-triangle-exclamation text-rose-500 text-lg"></i>
-                        </div>
-                        <h4 class="font-bold text-rose-900 mt-2">비효율 주의 권역</h4>
-                        <p class="text-xs text-rose-700 mt-0.5">고비용 / 저만족 (개선 필요)</p>
-                        <div class="mt-3 text-sm font-semibold text-rose-950" id="quad-q4-list">-</div>
+                    <div class="bg-rose-50 border border-rose-300 p-3.5 rounded-xl">
+                        <span class="font-extrabold text-rose-800 flex items-center gap-1.5">
+                            <i class="fa-solid fa-triangle-exclamation"></i> 제4사분면: 비효율 주의
+                        </span>
+                        <div class="text-[11px] text-rose-700 mt-1">고비용·저만족 (물가대비 만족도 개선 필요)</div>
+                        <div class="font-black text-rose-950 text-xs mt-1.5" id="quad-q4-regions">경기도, 경상북도</div>
                     </div>
                 </div>
 
-                <!-- 4분면 산점도 차트 -->
+                <!-- 4사분면 Scatter 차트 -->
                 <div class="h-96 w-full relative mb-6">
                     <canvas id="quadrantMatrixChart"></canvas>
                 </div>
 
-                <!-- 상세 데이터표 -->
+                <!-- 17개 시도 전수 데이터 표 -->
                 <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase">
                             <tr>
-                                <th class="p-3 border-b">지역명</th>
-                                <th class="p-3 border-b">비용/X 지표</th>
-                                <th class="p-3 border-b">만족도/Y 지표</th>
-                                <th class="p-3 border-b">비용 대비 만족도(Y/X)</th>
+                                <th class="p-3 border-b">지역명 (클릭 시 이동)</th>
+                                <th class="p-3 border-b">1인 평균 지출액 (원)</th>
+                                <th class="p-3 border-b">전반적 만족도 (점)</th>
+                                <th class="p-3 border-b">가성비 지수</th>
                                 <th class="p-3 border-b">분류 권역</th>
                             </tr>
                         </thead>
-                        <tbody id="quadrant-tbody" class="divide-y divide-slate-100">
-                            <tr>
-                                <td colspan="5" class="p-4 text-center text-slate-400">상관분석 탭에서 분석을 먼저 실행하세요.</td>
-                            </tr>
-                        </tbody>
+                        <tbody id="quadrant-tbody" class="divide-y divide-slate-100"></tbody>
                     </table>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 4: CSV 업로드 & 데이터셋 관리 -->
-        <div id="tab-upload" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6">
-                <div class="mb-6">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-cloud-arrow-up text-indigo-600"></i> KOSIS 및 국민여행조사 CSV 업로드
-                    </h2>
-                    <p class="text-sm text-slate-500 mt-1">
-                        국가통계포털(KOSIS) 또는 한국문화관광연구원에서 다운로드한 CSV 파일을 업로드하여 즉시 데이터 카탈로그에 반영합니다.
-                    </p>
+        <!-- ========================================== -->
+        <!-- 탭 6: 연령·성별 소비 패턴 -->
+        <!-- ========================================== -->
+        <div id="tab-age" class="tab-content hidden space-y-6">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-5">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-users text-[#00a3e0]"></i> 성·연령별 관광 지출 및 방문 집중 패턴
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            성별 및 연령대별 여행 지출 선호도와 세대별 집중 방문 선호 지역을 비교합니다.
+                        </p>
+                    </div>
+                    <!-- 연령대 선택 탭 -->
+                    <div class="flex flex-wrap gap-1" id="age-filter-buttons">
+                        <button onclick="selectAgeTab('전체')" class="age-tab-btn active px-3 py-1.5 rounded-lg text-xs font-bold">전체</button>
+                        <button onclick="selectAgeTab('20대')" class="age-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold">20대</button>
+                        <button onclick="selectAgeTab('30대')" class="age-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold">30대</button>
+                        <button onclick="selectAgeTab('40대')" class="age-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold">40대</button>
+                        <button onclick="selectAgeTab('50대')" class="age-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold">50대</button>
+                        <button onclick="selectAgeTab('60대이상')" class="age-tab-btn px-3 py-1.5 rounded-lg text-xs font-bold">60대 이상</button>
+                    </div>
                 </div>
 
-                <!-- 드래그앤드롭 업로드 박스 -->
-                <div id="drop-zone" class="border-2 border-dashed border-indigo-200 hover:border-indigo-500 bg-indigo-50/40 rounded-2xl p-8 text-center transition cursor-pointer mb-6">
-                    <input type="file" id="csv-file-input" accept=".csv" class="hidden">
-                    <i class="fa-solid fa-file-csv text-4xl text-indigo-500 mb-3"></i>
-                    <h3 class="text-base font-bold text-slate-700">여기를 클릭하거나 CSV 파일을 드래그하여 놓으세요</h3>
-                    <p class="text-xs text-slate-500 mt-1">CP949, EUC-KR, UTF-8 인코딩 및 KOSIS 2단 헤더를 자동으로 인식합니다.</p>
-                    <button type="button" onclick="document.getElementById('csv-file-input').click()" class="mt-4 bg-indigo-600 text-white text-xs font-semibold px-4 py-2 rounded-lg hover:bg-indigo-700 transition">
-                        내 컴퓨터에서 파일 선택
-                    </button>
-                </div>
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                    <!-- 좌측: 해당 연령대 선호 여행지 Top 5 -->
+                    <div class="bg-slate-50 p-4 rounded-xl border border-slate-200/80">
+                        <h3 class="text-xs font-extrabold text-[#0b1b3d] mb-3 flex items-center gap-1.5">
+                            <i class="fa-solid fa-map-pin text-rose-500"></i> <span id="age-top-title">전 연령</span> 지출 집중 지역 Top 5
+                        </h3>
+                        <div class="space-y-2" id="age-top-regions-list"></div>
+                    </div>
 
-                <div id="upload-status" class="hidden mb-6 p-4 rounded-xl text-sm"></div>
-
-                <!-- 현재 로드된 데이터셋 목록 -->
-                <h3 class="text-base font-bold text-slate-800 mb-3 flex items-center gap-2">
-                    <i class="fa-solid fa-database text-indigo-600"></i> 현재 등록된 데이터셋 목록
-                </h3>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-sm text-left border-collapse">
-                        <thead class="bg-slate-100 text-slate-600 uppercase text-xs">
-                            <tr>
-                                <th class="p-3 border-b">파일명</th>
-                                <th class="p-3 border-b">지역 통계 여부</th>
-                                <th class="p-3 border-b">포함 항목 수</th>
-                                <th class="p-3 border-b">상태</th>
-                            </tr>
-                        </thead>
-                        <tbody id="dataset-table-body" class="divide-y divide-slate-100">
-                        </tbody>
-                    </table>
-                </div>
-
-                <!-- KOSIS 다운로드 가이드 -->
-                <div class="mt-8 bg-blue-50 border border-blue-200 p-4 rounded-xl text-xs text-blue-900 leading-relaxed">
-                    <h4 class="font-bold text-sm text-blue-950 mb-1 flex items-center gap-1.5">
-                        <i class="fa-solid fa-lightbulb text-amber-500"></i> KOSIS 및 국민여행조사 추천 데이터셋 안내
-                    </h4>
-                    <ul class="list-disc list-inside space-y-1 mt-2 text-slate-700">
-                        <li><strong>1인 평균 지출액(시도별)</strong>: KOSIS > 국민여행조사 > 여행비용 > '국내여행 1인 평균 지출액(시도별)'</li>
-                        <li><strong>전반적 만족도</strong>: KOSIS > 국민여행조사 > 여행만족도 > '국내여행 전반적 만족도(시도별)'</li>
-                        <li><strong>재방문 의향</strong>: KOSIS > 국민여행조사 > 여행평가 > '향후 1년 내 재방문 의향(시도별)'</li>
-                    </ul>
+                    <!-- 우측: 남녀 성·연령별 지출 비중 피라미드 차트 -->
+                    <div class="lg:col-span-2">
+                        <div class="flex items-center justify-between mb-2">
+                            <h3 class="text-xs font-extrabold text-[#0b1b3d] flex items-center gap-1.5">
+                                <i class="fa-solid fa-scale-balanced text-indigo-500"></i> 성별·항목별 평균 지출액 (남성 vs 여성 대칭 비교)
+                            </h3>
+                            <div class="flex items-center gap-3 text-xs font-bold">
+                                <span class="flex items-center gap-1 text-[#00a3e0]"><span class="w-3 h-3 rounded-sm bg-[#00a3e0]"></span> 남성</span>
+                                <span class="flex items-center gap-1 text-[#f97316]"><span class="w-3 h-3 rounded-sm bg-[#f97316]"></span> 여성</span>
+                            </div>
+                        </div>
+                        <div class="h-72 relative">
+                            <canvas id="agePyramidChart"></canvas>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- 탭 5: AI 후속질문 분석가 -->
-        <div id="tab-chat" class="tab-content hidden">
-            <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 mb-6 flex flex-col h-[700px]">
-                <div class="border-b pb-4 mb-4">
-                    <h2 class="text-xl font-bold text-slate-800 flex items-center gap-2">
-                        <i class="fa-solid fa-robot text-indigo-600"></i> AI 데이터 인사이트 & 후속질문
+        <!-- ========================================== -->
+        <!-- 탭 7: AI 분석 어시스턴트 -->
+        <!-- ========================================== -->
+        <div id="tab-chat" class="tab-content hidden space-y-4">
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80 flex flex-col h-[750px]">
+                <div class="border-b border-slate-100 pb-3 mb-3">
+                    <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                        <i class="fa-solid fa-robot text-[#00a3e0]"></i> 한국 관광지 관련 데이터 분석 AI 어시스턴트
                     </h2>
-                    <p class="text-sm text-slate-500 mt-1">
-                        현재 로드된 실측 통계와 회귀분석 결과를 기반으로 질문을 남기면, 통계적 근거와 함께 답변을 제공합니다.
+                    <p class="text-xs text-slate-500 mt-0.5">
+                        본 사이트에 탑재된 17개 시도 공식 데이터(지출액 원 단위, 만족도, 재방문, 품목비중)를 1차 기준으로 우선 답변하며, 외부 참고 지식 인용 시 명확히 구분하여 안내합니다.
                     </p>
                 </div>
 
-                <!-- 빠른 추천 질문 칩 -->
-                <div class="flex flex-wrap gap-2 mb-3">
-                    <button onclick="sendQuickChat('가성비 높은 합리적인 추천 여행지는 어디인가요?')" class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-full transition">
-                        💡 가성비 합리적 여행지 추천
-                    </button>
-                    <button onclick="sendQuickChat('두 지표의 상관관계와 p-value 유의성은 어떻게 해석하나요?')" class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-full transition">
-                        📊 상관관계 및 유의성 검정 해석
-                    </button>
-                    <button onclick="sendQuickChat('소비자물가지수(CPI)로 지역 물가를 비교하면 안 되는 이유를 설명해줘')" class="text-xs bg-indigo-50 text-indigo-700 hover:bg-indigo-100 border border-indigo-200 px-3 py-1.5 rounded-full transition">
-                        ⚠️ 소비자물가지수(CPI) 비교 불가 사유
-                    </button>
+                <!-- 추천 질문 칩 -->
+                <div class="mb-3">
+                    <div class="text-[11px] font-bold text-[#0b1b3d] mb-1.5 flex items-center gap-1">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 추천 질문을 클릭하면 즉시 데이터 기반 답변이 출력됩니다:
+                    </div>
+                    <div class="flex flex-wrap gap-1.5">
+                        <button onclick="sendQuickChat('실제 사람들이 여행하면서 쓴 돈과 설문조사에서 답한 만족도를 알수 있니')" class="chip-btn font-bold">
+                            💬 실제 쓴 돈과 만족도를 알 수 있니?
+                        </button>
+                        <button onclick="sendQuickChat('예산이 적어도 높은 만족도를 얻을 수 있는 최고의 가성비 지역은 어디야?')" class="chip-btn font-bold text-emerald-700">
+                            🏆 최고의 가성비 추천 여행지는?
+                        </button>
+                        <button onclick="sendQuickChat('여행비가 비싼 지역일수록 관광객 만족도도 높을까?')" class="chip-btn font-bold">
+                            📈 지출이 크면 만족도도 올라갈까?
+                        </button>
+                        <button onclick="sendQuickChat('숙박비, 식비, 교통비 중 만족도와 가장 밀접한 비용은 무엇일까?')" class="chip-btn font-bold text-purple-700">
+                            🍽️ 숙박비 vs 식비 vs 교통비 비중 분석
+                        </button>
+                        <button onclick="sendQuickChat('동일한 예산으로 여행한다면 어느 지역이 가장 합리적인 선택일까?')" class="chip-btn font-bold text-blue-700">
+                            ⚖️ 동일 예산 기준 합리적 선택지
+                        </button>
+                        <button onclick="sendQuickChat('소비자물가지수(CPI)로 지역 여행 물가를 비교하면 안 되는 이유가 뭐야?')" class="chip-btn font-bold text-amber-800">
+                            ⚠️ CPI로 지역물가를 비교하면 안 되는 이유
+                        </button>
+                    </div>
                 </div>
 
-                <!-- 채팅 메시지 영역 -->
-                <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 p-4 bg-slate-50 rounded-xl border border-slate-200 mb-4">
-                    <div class="flex gap-3">
-                        <div class="w-8 h-8 rounded-full bg-indigo-600 text-white flex items-center justify-center text-xs shrink-0 font-bold">AI</div>
-                        <div class="bg-white p-3.5 rounded-2xl rounded-tl-none border border-slate-200 shadow-sm text-sm text-slate-700 max-w-xl">
-                            안녕하세요! KOSIS 및 국민여행조사 실측 데이터 분석 어시스턴트입니다.<br><br>
-                            임의의 가짜 수치를 생성하지 않으며, 현재 업로드된 데이터의 <strong>표본수(N), 회귀분석 유의성(p-value), 4분면 가성비 매트릭스</strong>를 기반으로 정확한 답변을 드립니다. 무엇이든 질문해 주세요!
+                <!-- 메시지 창 -->
+                <div id="chat-messages" class="flex-1 overflow-y-auto space-y-4 p-4 bg-[#f8faff] rounded-xl border border-slate-200/60 mb-3">
+                    <div class="flex gap-2.5">
+                        <div class="w-8 h-8 rounded-xl bg-[#0b1b3d] text-white flex items-center justify-center text-xs shrink-0 font-bold">AI</div>
+                        <div class="bg-white p-3.5 rounded-xl rounded-tl-none border border-slate-200/80 shadow-2xs text-xs text-slate-700 max-w-2xl leading-relaxed">
+                            반갑습니다! <strong>한국 관광지 관련 데이터 분석 AI 어시스턴트</strong>입니다.<br><br>
+                            본 사이트에 탑재된 전국 17개 광역시도의 1인당 실제 지출액(전국 평균 <strong>53,900원</strong>), 전반적 만족도(평균 <strong>80.3점</strong>), 재방문 의향, 외식/교통/숙박 소비 품목 빅데이터를 토대로 정확하게 답변해 드립니다.<br><br>
+                            궁금하신 내용을 입력하시거나 위의 <strong>추천 질문 버튼</strong>을 클릭해 보세요!
                         </div>
                     </div>
                 </div>
 
-                <!-- 입력창 -->
+                <!-- 입력 폼 -->
                 <form id="chat-form" onsubmit="handleChatSubmit(event)" class="flex gap-2">
-                    <input type="text" id="chat-input" placeholder="분석 결과나 여행지 가성비에 대해 후속 질문을 입력하세요..." class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-sm focus:ring-2 focus:ring-indigo-500 outline-none">
-                    <button type="submit" class="bg-indigo-600 hover:bg-indigo-700 text-white font-medium px-5 py-2.5 rounded-xl text-sm transition flex items-center gap-2">
+                    <input type="text" id="chat-input" placeholder="궁금한 점을 질문해 보세요 (예: 실제 사람들이 여행하며 쓴 돈과 만족도를 알 수 있니?)" class="flex-1 bg-slate-50 border border-slate-300 rounded-xl px-4 py-2.5 text-xs focus:ring-2 focus:ring-[#00a3e0] outline-none">
+                    <button type="submit" class="bg-[#0b1b3d] hover:bg-[#162a52] text-white font-bold px-5 py-2.5 rounded-xl text-xs transition shadow-2xs flex items-center gap-1.5">
                         <span>전송</span> <i class="fa-solid fa-paper-plane"></i>
                     </button>
                 </form>
             </div>
         </div>
 
+        <!-- ========================================== -->
+        <!-- 탭 8: 원천 데이터셋 관리 & 추가 -->
+        <!-- ========================================== -->
+        <div id="tab-datasets" class="tab-content hidden space-y-6">
+            <!-- 사용자 데이터 추가 박스 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 mb-4">
+                    <div>
+                        <h2 class="text-base font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                            <i class="fa-solid fa-cloud-arrow-up text-[#00a3e0]"></i> 새로운 관광 통계 CSV 데이터셋 추가
+                        </h2>
+                        <p class="text-xs text-slate-500 mt-1">
+                            공공 통계 포털에서 내려받은 실측 CSV 파일을 업로드하여 데이터셋 카탈로그에 실시간으로 추가할 수 있습니다.
+                        </p>
+                    </div>
+                </div>
+
+                <form id="dataset-upload-form" onsubmit="handleDatasetUpload(event)" class="flex flex-col sm:flex-row items-stretch sm:items-center gap-3 bg-slate-50 p-4 rounded-xl border border-slate-200/60 mb-4">
+                    <input type="file" id="dataset-file-input" accept=".csv" required class="flex-1 bg-white border border-slate-300 rounded-lg p-2 text-xs text-slate-700 file:mr-3 file:py-1.5 file:px-3 file:rounded-md file:border-0 file:text-xs file:font-bold file:bg-[#0b1b3d] file:text-white hover:file:bg-[#162a52] cursor-pointer">
+                    <button type="submit" id="btn-upload-dataset" class="bg-[#00a3e0] hover:bg-[#0284c7] text-white font-bold px-5 py-2.5 rounded-lg text-xs transition shadow-2xs flex items-center justify-center gap-1.5">
+                        <i class="fa-solid fa-plus"></i> 데이터셋 탑재
+                    </button>
+                </form>
+                <div id="upload-status-msg" class="text-xs font-bold hidden mb-4"></div>
+
+                <!-- ⚠️ 필수 주의사항 (신뢰성 & 최신성 가이드라인) -->
+                <div class="bg-amber-50/80 border border-amber-300/80 rounded-xl p-4 text-xs space-y-2.5 text-amber-950">
+                    <div class="font-extrabold flex items-center gap-2 text-amber-900 text-sm">
+                        <i class="fa-solid fa-triangle-exclamation text-amber-600"></i> 데이터 추가 시 필수 준수 가이드라인 (신뢰성 & 최신성 원칙)
+                    </div>
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-1 text-slate-700">
+                        <div class="bg-white/80 p-3 rounded-lg border border-amber-200/60 space-y-1">
+                            <div class="font-bold text-amber-900 flex items-center gap-1">
+                                <i class="fa-solid fa-building-columns text-amber-600"></i> 1. 검증된 공공 포털 출처 사용 (신뢰성)
+                            </div>
+                            <p class="leading-relaxed text-[11px] text-slate-600">
+                                개인 블로그나 비공식 추정치가 아닌, 공인된 국가 통계 포털의 실측 데이터를 업로드해야 통계적 왜곡을 방지할 수 있습니다.
+                            </p>
+                        </div>
+                        <div class="bg-white/80 p-3 rounded-lg border border-amber-200/60 space-y-1">
+                            <div class="font-bold text-amber-900 flex items-center gap-1">
+                                <i class="fa-solid fa-calendar-check text-amber-600"></i> 2. 최근 1~2년 이내의 최신화된 데이터 (최신성)
+                            </div>
+                            <p class="leading-relaxed text-[11px] text-slate-600">
+                                관광 소비 물가와 여행 트렌드는 시기별 변동이 크므로, <strong>최신 연도 기준의 집계표</strong>를 활용해야 현실에 부합하는 분석이 보장됩니다.
+                            </p>
+                        </div>
+                        <div class="bg-white/80 p-3 rounded-lg border border-amber-200/60 space-y-1">
+                            <div class="font-bold text-amber-900 flex items-center gap-1">
+                                <i class="fa-solid fa-map-location-dot text-amber-600"></i> 3. 17개 광역시도 행정구역 표준 정합성
+                            </div>
+                            <p class="leading-relaxed text-[11px] text-slate-600">
+                                서울, 부산, 대구, 인천, 광주, 대전, 울산, 세종, 경기, 강원, 충북, 충남, 전북, 전남, 경북, 경남, 제주 등 <strong>17개 광역자치단체 행정구역</strong>이 포함된 CSV여야 정상 분석됩니다.
+                            </p>
+                        </div>
+                        <div class="bg-white/80 p-3 rounded-lg border border-amber-200/60 space-y-1">
+                            <div class="font-bold text-rose-800 flex items-center gap-1">
+                                <i class="fa-solid fa-circle-exclamation text-rose-600"></i> 4. 소비자물가지수(CPI) 지역 간 비교 오남용 금지
+                            </div>
+                            <p class="leading-relaxed text-[11px] text-slate-600">
+                                소비자물가지수는 시계열 변동 지수이므로, 지역 간 지표 크기를 단순 비교하는 것은 치명적인 오류입니다. 반드시 <strong>1인당 실측 지출액(원)</strong> 데이터를 사용해 주세요.
+                            </p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 탑재된 10개 원천 데이터셋 카탈로그 테이블 -->
+            <div class="bg-white p-6 rounded-2xl shadow-xs border border-slate-200/80">
+                <div class="flex items-center justify-between mb-4">
+                    <h3 class="text-sm font-extrabold text-[#0b1b3d] flex items-center gap-2">
+                        <i class="fa-solid fa-database text-[#00a3e0]"></i> 탑재된 원천 통계 데이터셋 목록
+                    </h3>
+                    <span class="text-xs text-slate-500" id="datasets-count-badge">총 10개 데이터셋 정상 운용 중</span>
+                </div>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-xs text-left border-collapse">
+                        <thead class="bg-slate-100 text-slate-600 font-bold uppercase">
+                            <tr>
+                                <th class="p-3 border-b">데이터셋 파일명</th>
+                                <th class="p-3 border-b">분석 단위</th>
+                                <th class="p-3 border-b">포함 세부 분류</th>
+                                <th class="p-3 border-b">탑재 상태</th>
+                            </tr>
+                        </thead>
+                        <tbody id="dataset-table-body" class="divide-y divide-slate-100"></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- 🌟 쉬운 학생·초보자용 4문 4답 총정리 카드 -->
+        <section class="bg-gradient-to-br from-[#0b1b3d] to-[#1e293b] text-white p-6 rounded-2xl shadow-md border border-slate-800">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-700/60 pb-3">
+                <h3 class="text-sm font-extrabold text-[#38bdf8] flex items-center gap-2">
+                    <i class="fa-solid fa-graduation-cap text-lg"></i> 📖 학생·초보자도 1분 만에 이해하는 관광통계 종합 요약
+                </h3>
+                <span class="text-[11px] bg-[#162a52] text-[#38bdf8] px-2.5 py-1 rounded-full border border-[#234079]">17개 시도 실측 검정 N=17</span>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs">
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                    <div class="font-bold text-amber-400 mb-1">Q1. 돈을 많이 쓴 여행일수록 만족했을까?</div>
+                    <div class="text-white font-semibold">👉 "네, 맞습니다! (상관계수 r=+0.6124, 매우 확실)"</div>
+                    <p class="text-slate-300 mt-1 leading-relaxed">숙소와 음식, 교통에 쓴 돈이 아깝지 않고 더 큰 만족으로 이어졌습니다.</p>
+                </div>
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                    <div class="font-bold text-cyan-400 mb-1">Q2. 돈을 많이 썼는데도 또 가고 싶어 할까?</div>
+                    <div class="text-white font-semibold">👉 "네! 쓴 돈이 많아도 다시 가고 싶어 해요."</div>
+                    <p class="text-slate-300 mt-1 leading-relaxed">지출이 컸어도 그만큼 좋은 추억과 경험을 얻어 재방문 의향이 높았습니다.</p>
+                </div>
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                    <div class="font-bold text-purple-400 mb-1">Q3. 여행이 만족스러우면 무조건 다시 갈까?</div>
+                    <div class="text-white font-semibold">👉 "완전 그렇습니다! (r=+0.8778, 극도로 강력)"</div>
+                    <p class="text-slate-300 mt-1 leading-relaxed">만족도가 높은 지역은 10명 중 8~9명이 다시 오겠다고 답했습니다.</p>
+                </div>
+                <div class="bg-slate-800/80 p-4 rounded-xl border border-slate-700/60">
+                    <div class="font-bold text-slate-300 mb-1">Q4. 물가가 싸면 무조건 만족도 1위일까?</div>
+                    <div class="text-white font-semibold">👉 "꼭 그렇지는 않아요! 물가만으로는 부족해요."</div>
+                    <p class="text-slate-300 mt-1 leading-relaxed">물가는 거들 뿐, 그 지역만의 특별한 자연경관과 볼거리가 더 중요합니다.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- 🌟 데이터 설명 접기/펼치기 아코디언 바 -->
+        <section class="rounded-2xl overflow-hidden shadow-xs border border-amber-300/80">
+            <button onclick="toggleDataDescription()" class="w-full bg-[#f59e0b] hover:bg-[#d97706] text-white font-bold p-4 text-left flex items-center justify-between transition">
+                <span class="flex items-center gap-2 text-sm">
+                    <i class="fa-solid fa-circle-question"></i> 데이터 설명 및 통계 산출 기준 안내
+                </span>
+                <i id="accordion-arrow" class="fa-solid fa-chevron-down transition-transform duration-300"></i>
+            </button>
+            <div id="data-description-body" class="hidden bg-amber-50/70 p-5 text-xs text-slate-700 space-y-3 leading-relaxed border-t border-amber-200">
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div>
+                        <h4 class="font-extrabold text-amber-900 mb-1">1. 데이터 출처 및 분석 기준</h4>
+                        <ul class="list-disc ml-4 space-y-1 text-slate-700">
+                            <li><strong>분석 기준:</strong> 본 사이트에 탑재된 공식 통계 데이터셋</li>
+                            <li><strong>분석 단위:</strong> 전국 17개 광역시도 전수 집계 (N=17)</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-extrabold text-amber-900 mb-1">2. 지표 정의 및 산출 공식</h4>
+                        <ul class="list-disc ml-4 space-y-1 text-slate-700">
+                            <li><strong>1인 평균 지출액:</strong> 여행 1회 참가 시 1인이 실제 소비한 총 지출액 (원 단위)</li>
+                            <li><strong>전반적 만족도:</strong> 여행지에서의 만족도를 100점 만점으로 환산한 평가 척도</li>
+                            <li><strong>가성비 지수:</strong> 만족도 점수 ÷ 1인 지출액 (동일 비용 투입 대비 체감 효용 지표)</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="pt-2 border-t border-amber-200/80">
+                    <h4 class="font-extrabold text-rose-800 mb-1">⚠️ 소비자물가지수(CPI) 지역 간 비교 배제 원칙</h4>
+                    <p class="text-slate-600">
+                        소비자물가지수(CPI)는 각 지역별 '2020년 기준시점(100)' 대비 물가 상승 속도를 측정한 시계열 지수입니다. 
+                        서로 다른 지역의 물가 지수를 단순 비교하여 "A지역이 B지역보다 물가가 비싸다"고 해석하는 것은 <strong>통계학적 치명적 오남용</strong>입니다.
+                        본 시스템은 엄격한 학술적 신뢰성을 위해 실측 여행 지출액과 체감 만족도 설문만을 활용합니다.
+                    </p>
+                </div>
+            </div>
+        </section>
+
     </main>
 
     <!-- 푸터 -->
-    <footer class="bg-slate-900 text-slate-400 py-6 border-t border-slate-800 text-xs">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-2">
-            <p>국내 여행지 지출액 & 관광객 만족도 상관관계 분석 플랫폼</p>
-            <p class="text-slate-500">
-                데이터 출처: 통계청 국가통계포털(KOSIS), 문화체육관광부·한국문화관광연구원 국민여행조사 | 
-                원칙: 소비자물가지수 지역간 절대비교 배제, 표본수 N 및 통계적 유의성 표기, 실측 데이터 기반 분석
+    <footer class="bg-[#0b1b3d] text-slate-400 py-6 border-t border-[#1b2e59] text-xs">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center space-y-1.5">
+            <p class="font-bold text-white text-sm">한국 관광지 관련 데이터 분석</p>
+            <p class="text-slate-400 text-[11px]">
+                기준: 본 사이트 탑재 17개 광역시도 공식 통계 데이터 | CPI 지역비교 배제 통계 원칙 준수
             </p>
         </div>
     </footer>
 
     <!-- App JS -->
-    <script src="/static/app.js"></script>
+    <script src="/static/app.js?v=20261027_3"></script>
 </body>
 </html>
