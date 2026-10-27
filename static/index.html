@@ -543,20 +543,23 @@
                         <i class="fa-solid fa-wand-magic-sparkles text-amber-500"></i> 추천 질문을 클릭하면 즉시 데이터 기반 답변이 출력됩니다:
                     </div>
                     <div class="flex flex-wrap gap-1.5">
-                        <button onclick="sendQuickChat('실제 사람들이 여행하면서 쓴 돈과 설문조사에서 답한 만족도를 알수 있니')" class="chip-btn font-bold">
-                            💬 실제 쓴 돈과 만족도를 알 수 있니?
+                        <button onclick="sendQuickChat('관광객 만족도가 제일 높은 지역은 어디야?')" class="chip-btn font-bold text-amber-700 bg-amber-50 border-amber-200">
+                            ⭐ 만족도 제일 높은 지역은?
                         </button>
                         <button onclick="sendQuickChat('예산이 적어도 높은 만족도를 얻을 수 있는 최고의 가성비 지역은 어디야?')" class="chip-btn font-bold text-emerald-700">
                             🏆 최고의 가성비 추천 여행지는?
                         </button>
+                        <button onclick="sendQuickChat('지출 대비 가성비가 안 좋은 비효율적인 지역은 어디야?')" class="chip-btn font-bold text-rose-700 bg-rose-50 border-rose-200">
+                            ⚠️ 가성비 안 좋은 비효율 지역은?
+                        </button>
                         <button onclick="sendQuickChat('여행비가 비싼 지역일수록 관광객 만족도도 높을까?')" class="chip-btn font-bold">
                             📈 지출이 크면 만족도도 올라갈까?
                         </button>
+                        <button onclick="sendQuickChat('실제 사람들이 여행하면서 쓴 돈과 설문조사에서 답한 만족도를 알수 있니')" class="chip-btn font-bold">
+                            💬 실제 쓴 돈과 만족도를 알 수 있니?
+                        </button>
                         <button onclick="sendQuickChat('숙박비, 식비, 교통비 중 만족도와 가장 밀접한 비용은 무엇일까?')" class="chip-btn font-bold text-purple-700">
                             🍽️ 숙박비 vs 식비 vs 교통비 비중 분석
-                        </button>
-                        <button onclick="sendQuickChat('동일한 예산으로 여행한다면 어느 지역이 가장 합리적인 선택일까?')" class="chip-btn font-bold text-blue-700">
-                            ⚖️ 동일 예산 기준 합리적 선택지
                         </button>
                         <button onclick="sendQuickChat('소비자물가지수(CPI)로 지역 여행 물가를 비교하면 안 되는 이유가 뭐야?')" class="chip-btn font-bold text-amber-800">
                             ⚠️ CPI로 지역물가를 비교하면 안 되는 이유
@@ -759,6 +762,6 @@
     </footer>
 
     <!-- App JS -->
-    <script src="/static/app.js?v=20261027_donut_fix"></script>
+    <script src="/static/app.js?v=20261027_ai_fix"></script>
 </body>
 </html>
