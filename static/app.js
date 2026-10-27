@@ -1011,7 +1011,7 @@ function appendChatMessage(sender, text) {
         `;
     } else {
         wrapper.innerHTML = `
-            <div class="w-8 h-8 rounded-xl bg-[#0b1b3d] text-white flex items-center justify-center text-xs shrink-0 font-bold">AI</div>
+            <img src="/static/ikon.png" alt="AI" class="w-8 h-8 rounded-xl object-cover shadow-2xs shrink-0 border border-slate-200">
             <div id="${msgId}" class="chat-bubble-ai p-3.5 text-xs text-slate-700 max-w-2xl leading-relaxed">
                 ${formatMarkdownToHtml(text)}
             </div>

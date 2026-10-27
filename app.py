@@ -12,7 +12,7 @@ import glob
 import json
 import re
 import traceback
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, send_from_directory
 from dotenv import load_dotenv
 
 from engine import (
@@ -58,6 +58,10 @@ load_initial_datasets()
 @app.route('/')
 def index():
     return render_template('index.html')
+
+@app.route('/favicon.ico')
+def favicon():
+    return send_from_directory(os.path.join(app.root_path, 'static'), 'ikon.png', mimetype='image/png')
 
 @app.route('/api/datasets', methods=['GET'])
 def list_datasets():
