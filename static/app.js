@@ -215,11 +215,11 @@ async function selectRegion(regionName) {
     // 5. 하단 17개 광역시도 벤치마크 바 차트 & 랭킹 테이블 강조 동기화 (선택 지역 빨간색 하이라이트)
     loadRegionalBenchmark();
 
-    // 6. 서버 API 데이터 비동기 연동
+    // 6. 서버 API 데이터 비동기 연동 (선택 지역과 일치할 때만 갱신)
     try {
-        const res = await fetch(`/api/region-summary/${encodeURIComponent(shortName)}`);
+        const res = await fetch(`/api/region-summary/${encodeURIComponent(shortName)}?region=${encodeURIComponent(shortName)}`);
         const data = await res.json();
-        if (data.success) {
+        if (data.success && (data.region === shortName || getShortName(data.region) === shortName) && currentRegion === shortName) {
             renderRegionKPIs(data);
             renderConsumptionDonutChart(data.consumption_shares);
             renderTripTypeBarChart(data.metrics.day_trip, data.metrics.stay_trip, fullName);
@@ -230,6 +230,11 @@ async function selectRegion(regionName) {
 }
 
 function renderRegionKPIs(data) {
+    if (!data || !data.region) return;
+    const short = getShortName(data.region);
+    // 엄격 가드: 사용자가 선택한 현재 지역과 일치하지 않는 서버 응답은 절대 DOM을 덮어쓰지 않음
+    if (short !== currentRegion) return;
+
     const m = data.metrics;
     const fullName = getFullName(data.region);
     document.getElementById('kpi-region-title').innerText = fullName;

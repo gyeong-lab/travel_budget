@@ -121,14 +121,24 @@ REGION_NORMALIZE = {
     '제주특별자치도': '제주', '제주도': '제주'
 }
 
-@app.route('/api/region-summary/<region_name>', methods=['GET'])
-def get_region_summary(region_name):
+@app.route('/api/region-summary', methods=['GET'])
+@app.route('/api/region-summary/<path:region_name>', methods=['GET'])
+def get_region_summary(region_name=None):
     """
     특정 지역의 소비, 만족도, 재방문, 랭킹 종합 브리핑 반환
     """
+    if not region_name:
+        region_name = request.args.get('region', '')
+    import urllib.parse
+    region_name = urllib.parse.unquote(str(region_name)).strip()
+    try:
+        region_name = region_name.encode('latin1').decode('utf-8')
+    except Exception:
+        pass
     region_name = REGION_NORMALIZE.get(region_name, region_name)
     if region_name not in STANDARD_REGIONS:
-        region_name = '제주'
+        matched = next((r for r in STANDARD_REGIONS if r in region_name or region_name in r), None)
+        region_name = matched if matched else '제주'
 
     # 1. 1인 지출액
     exp_ds = next((d for f, d in DATASETS.items() if '지출액' in f), None)
